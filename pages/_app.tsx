@@ -44,7 +44,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
         <Alert />
-        <AppDrawer children={<Component {...pageProps} />} />
+        <AppDrawer>
+          <Component {...pageProps} />
+        </AppDrawer>
         <ReactQueryDevtools initialIsOpen={true} />
       </QueryClientProvider>
     </ThemeProvider>
