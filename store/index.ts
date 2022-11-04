@@ -9,7 +9,7 @@ export const useAlertStore = create((set) => ({
 }));
 
 export const useUserStore = create((set) => ({
-  isOpen: false,
+  isOpen: true,
   toggle: () => set((state: any) => ({ isOpen: !state.isOpen })),
 }));
 

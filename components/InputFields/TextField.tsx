@@ -11,9 +11,9 @@ const CustomTextField = styled((props: TextFieldProps) => (
   />
 ))(({ theme }) => ({
   "& .MuiFilledInput-root": {
-    border: "1px solid #e2e2e1",
+    border: "1px solid #bdbdbd",
     overflow: "hidden",
-    borderRadius: 6,
+    borderRadius: 15,
     backgroundColor: theme.palette.mode === "light" ? "#fcfcfb" : "#2b2b2b",
     transition: theme.transitions.create([
       "border-color",
@@ -24,18 +24,23 @@ const CustomTextField = styled((props: TextFieldProps) => (
       borderBottom: 0,
     },
     "&:hover": {
-      backgroundColor: "transparent",
+      backgroundColor: "rgba(255,255,255,0.9)",
     },
     "&.Mui-focused": {
-      backgroundColor: "transparent",
-      //boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 2px`,
-      //border: `2px dotted ${theme.palette.primary.main}`,
+      backgroundColor: "rgba(231,234,246,0.9)",
       borderBottom: `1px solid ${theme.palette.primary.main}`,
     },
     "&.Mui-error": {
       backgroundColor: "#fff8f8",
-      borderBottom: `1px solid ${theme.palette.error.main}`,
+      border: `2px dotted ${theme.palette.error.main}`,
     },
+  },
+  ".MuiFormLabel-root": {
+    fontSize: 14,
+    top: 2,
+  },
+  ".MuiFormLabel-root.MuiFormLabel-filled": {
+    fontSize: 16,
   },
   ".MuiFormHelperText-root": {
     textAlign: "right",
@@ -58,7 +63,8 @@ const CustomTextField = styled((props: TextFieldProps) => (
 export const TextFieldX = (props: {
   children: ReactElement<JSXElementConstructor<any>>;
 }) => (
-  <Grid xs={12} sm={6} md={4} lg={3} sx={{ px: 1, mt: 1 }}>
+  //<Grid xs={12} sm={6} md={4} lg={3} sx={{ px: 1, mt: 1 }}>
+  <Grid sx={{ px: 1, mt: 1 }}>
     <CustomTextField {...props} variant="filled" fullWidth size="small">
       {props.children}
     </CustomTextField>

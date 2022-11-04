@@ -1,6 +1,12 @@
 import { createTheme } from "@mui/material/styles";
+import { palette } from "@mui/system";
+
+const theme = createTheme();
 
 export const customTheme = createTheme({
+  typography: {
+    fontFamily: "Rubik",
+  },
   components: {
     MuiPaper: {
       styleOverrides: {
