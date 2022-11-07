@@ -1,9 +1,17 @@
 import { createTheme } from "@mui/material/styles";
-import { palette } from "@mui/system";
 
 const theme = createTheme();
 
 export const customTheme = createTheme({
+  /* palette: {
+    mode: "light",
+    white: {
+      light: "#fff",
+      main: "#fff",
+      dark: "#ef6c00",
+      contrastText: "rgba(0, 0, 0, 0.87)",
+    },
+  }, */
   typography: {
     fontFamily: "Rubik",
   },

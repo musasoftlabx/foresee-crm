@@ -14,7 +14,7 @@ import axios from "axios";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-const Users = ({ domains }: { domains: String[] }) => {
+const Users = () => {
   const handleOpen = useUserStore((state: any) => state.toggle);
 
   const exportToCSV = ({}) => {};
@@ -99,9 +99,21 @@ const Users = ({ domains }: { domains: String[] }) => {
     });
   }, []);
 
+  const { data, error, isLoading } = useQuery(
+    ["GetDomains"],
+    async () => {
+      return await axios.get("GetDomains");
+    },
+    {
+      refetchOnWindowFocus: false,
+      //initialData: () => [],
+      //onSuccess: (data) => st(data),
+    }
+  );
+
   return (
     <>
-      <AddUser />
+      <AddUser domains={data} />
       <Button onClick={handleOpen}>open</Button>
       <div id="container"></div>
     </>

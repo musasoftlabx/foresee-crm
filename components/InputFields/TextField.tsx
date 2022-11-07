@@ -1,12 +1,31 @@
 import Grid from "@mui/material/Grid";
 import { styled } from "@mui/material/styles";
 import { OutlinedInputProps } from "@mui/material/OutlinedInput";
+import InputAdornment from "@mui/material/InputAdornment";
 import TextField, { TextFieldProps } from "@mui/material/TextField";
-import { JSXElementConstructor, ReactElement } from "react";
 
-const CustomTextField = styled((props: TextFieldProps) => (
+type PrefixIcon = { prefixIcon?: React.ReactNode };
+type AdditionalTextFieldProps = TextFieldProps & PrefixIcon;
+
+const CustomTextField = styled((props: AdditionalTextFieldProps) => (
   <TextField
-    InputProps={{ disableUnderline: true } as Partial<OutlinedInputProps>}
+    InputProps={
+      {
+        disableUnderline: true,
+        startAdornment: (
+          <InputAdornment
+            position="start"
+            sx={{
+              marginTop: props.value ? "18px !important" : "0px !important",
+              borderBottom: 0,
+              color: props.error ? "#d3302f" : "",
+            }}
+          >
+            {props.prefixIcon}
+          </InputAdornment>
+        ),
+      } as Partial<OutlinedInputProps>
+    }
     {...props}
   />
 ))(({ theme }) => ({
@@ -14,7 +33,10 @@ const CustomTextField = styled((props: TextFieldProps) => (
     border: "1px solid #bdbdbd",
     overflow: "hidden",
     borderRadius: 15,
-    backgroundColor: theme.palette.mode === "light" ? "#fcfcfb" : "#2b2b2b",
+    backgroundColor:
+      theme.palette.mode === "light"
+        ? "rgba(252,252,252,0.95)" //"rgba(232,240,254,0.95)"
+        : "rgba(43,43,43,0.95)",
     transition: theme.transitions.create([
       "border-color",
       "background-color",
@@ -24,28 +46,40 @@ const CustomTextField = styled((props: TextFieldProps) => (
       borderBottom: 0,
     },
     "&:hover": {
-      backgroundColor: "rgba(255,255,255,0.9)",
+      backgroundColor:
+        theme.palette.mode === "light"
+          ? "rgba(252,252,252,0.9)"
+          : "rgba(43,43,43,0.4)",
     },
     "&.Mui-focused": {
-      backgroundColor: "rgba(231,234,246,0.9)",
+      backgroundColor:
+        theme.palette.mode === "light"
+          ? "rgba(231,234,246,0.9)"
+          : "rgba(43,43,43,0.4)",
       borderBottom: `1px solid ${theme.palette.primary.main}`,
     },
     "&.Mui-error": {
-      backgroundColor: "#fff8f8",
+      backgroundColor:
+        theme.palette.mode === "light"
+          ? "rgba(255,248,248,0.9)"
+          : "rgba(43,43,43,0.4)",
       border: `2px dotted ${theme.palette.error.main}`,
     },
   },
   ".MuiFormLabel-root": {
     fontSize: 14,
     top: 2,
+    transform: "translate(50px, 14px) scale(1.05)",
   },
   ".MuiFormLabel-root.MuiFormLabel-filled": {
     fontSize: 16,
+    transform: "translate(13px, 4px) scale(0.75)",
   },
   ".MuiFormHelperText-root": {
     textAlign: "right",
     fontWeight: 500,
     lineHeight: 0.5,
+    marginBottom: -7,
     marginRight: 5,
     marginTop: 7,
     opacity: 0.7,
@@ -58,14 +92,34 @@ const CustomTextField = styled((props: TextFieldProps) => (
       content: "unset",
     },
   },
+  "&.MuiFormControl-root": {
+    label: {
+      cursor: "text",
+    },
+    input: {
+      "&[value='']": {
+        caretColor: "transparent",
+      },
+      ":-internal-autofill": {
+        backgroundColor: "#e8f0fe !important",
+      },
+    },
+  },
 }));
 
-export const TextFieldX = (props: {
-  children: ReactElement<JSXElementConstructor<any>>;
-}) => (
+type TextFieldXProps = {
+  children?: React.ReactNode;
+  label: string;
+  select?: boolean;
+  error?: boolean;
+  helperText?: string | boolean;
+  prefixIcon?: React.ReactNode;
+};
+
+export const TextFieldX = (props: TextFieldXProps) => (
   //<Grid xs={12} sm={6} md={4} lg={3} sx={{ px: 1, mt: 1 }}>
   <Grid sx={{ px: 1, mt: 1 }}>
-    <CustomTextField {...props} variant="filled" fullWidth size="small">
+    <CustomTextField variant="filled" fullWidth size="small" {...props}>
       {props.children}
     </CustomTextField>
   </Grid>

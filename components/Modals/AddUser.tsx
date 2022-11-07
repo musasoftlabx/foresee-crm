@@ -1,70 +1,67 @@
-import { useUserStore } from "../../store";
-import { customTheme } from "../../utils/theme";
-import { TextFieldX } from "../InputFields/TextField";
+import axios from "axios";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { useMutation } from "@tanstack/react-query";
 
-import { styled, ThemeProvider } from "@mui/material/styles";
-import { red, grey } from "@mui/material/colors";
+import { ThemeProvider } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
-import LoadingButton from "@mui/lab/LoadingButton";
 import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import Stack from "@mui/material/Stack";
+import LoadingButton from "@mui/lab/LoadingButton";
 import MenuItem from "@mui/material/MenuItem";
-import { Formik, Form } from "formik";
-
-import { RiCloseFill } from "react-icons/ri";
-
-import * as Yup from "yup";
-import axios from "axios";
-
-import { useQuery, useMutation } from "@tanstack/react-query";
 import Modal from "@mui/material/Modal";
-import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
 
-export default function AddUser() {
-  const {
-    mutate,
-    isLoading: mutationLoading,
-    isSuccess: mutationSuccess,
-    isError: mutationError,
-  } = useMutation((data) => axios.post("users", data));
+import { useAlertStore, useUserStore } from "../../store";
+import { customTheme } from "../../utils/theme";
+import { TextFieldX } from "../InputFields/TextField";
+import { CloseButtonX } from "../InputFields/CloseButton";
 
-  const style = {
-    backgroundColor: "white", //grey[50],
-    borderRadius: "20px",
-    //borderTop: `1px solid ${gradients[status][1]}`,
-    left: "50%",
-    maxWidth: "300px",
-    overflow: "hidden",
-    //px: 2,
-    //pt: 3,
-    pb: 2,
-    position: "absolute",
-    top: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "300px",
-    zIndex: "9999",
+import {
+  MdAccountCircle,
+  MdAttachEmail,
+  MdOutlineDomain,
+} from "react-icons/md";
+import Button from "@mui/material/Button";
+
+type Domains = {
+  domains: {
+    data: string[];
   };
+};
 
-  const CloseButton = styled(RiCloseFill)({
-    "&:hover": {
-      color: red[500],
-      transform: "rotate(90deg)",
-      transition: "transform 0.3s",
-    },
-  });
-
+export default function AddUser({ domains }: Domains) {
+  // ? Client state definitions
   const handleClose = useUserStore((state) => state.toggle);
+  const showAlert = useAlertStore((state) => state.alert);
+
+  // ? Server state definitions
+  const { mutate } = useMutation((body) => axios.post("AddUser", body));
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Modal open={useUserStore((state) => state.isOpen)} onClose={handleClose}>
-        <Box sx={style}>
+      <Modal open={useUserStore((state) => state.isOpen)}>
+        <Box
+          sx={{
+            backgroundColor: "#fff",
+            borderRadius: "20px",
+            left: "50%",
+            maxWidth: "300px",
+            overflow: "hidden",
+            pb: 2,
+            position: "absolute",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "300px",
+            zIndex: "9999",
+            outline: 0,
+          }}
+        >
           <svg
-            viewBox="650 250 300 300"
+            viewBox="0 250 300 300"
             width="100%"
-            height="300"
+            height="380"
             xmlns="http://www.w3.org/2000/svg"
             version="1.1"
             style={{ position: "absolute", zIndex: -1 }}
@@ -82,15 +79,6 @@ export default function AddUser() {
               lastName: "",
               emailAddress: "",
               domain: "",
-              domains: [
-                "Foresee",
-                "LC Waikiki",
-                "FLO",
-                "Carrefour",
-                "Naivas",
-                "Versace",
-                "Bata",
-              ],
             }}
             validationSchema={Yup.object({
               firstName: Yup.string()
@@ -106,17 +94,22 @@ export default function AddUser() {
               domain: Yup.string().required("Required"),
             })}
             onSubmit={(values, { setSubmitting, resetForm }) => {
-              mutate(JSON.stringify(values), {
+              //@ts-ignore
+              mutate(values, {
                 onSuccess: () => resetForm(),
-                onError: (error) => {
+                onError: (error: any) => {
                   setSubmitting(false);
-                  alert(error);
+                  showAlert({
+                    status: "warning",
+                    subject: "An error occured",
+                    body: error.response.data.message,
+                  });
                 },
                 onSettled: (data, error, variables, context) => {},
               });
             }}
           >
-            {({ values, errors, touched, getFieldProps, isSubmitting }) => (
+            {({ errors, touched, getFieldProps, isSubmitting }) => (
               <Form>
                 <Grid container>
                   <Grid xs={12}>
@@ -125,78 +118,90 @@ export default function AddUser() {
                       display="flex"
                       alignItems="center"
                       justifyContent="space-between"
-                      sx={{ mr: 2, ml: 3, mt: 3 }}
+                      sx={{ mx: 3, mt: 3 }}
                     >
-                      <Typography variant="h5" color={red[50]}>
+                      <Typography
+                        sx={{
+                          color: "white",
+                          fontFamily: "Lobster",
+                          fontSize: 26,
+                          mt: -0.5,
+                        }}
+                      >
                         Add user
                       </Typography>
-                      <IconButton onClick={handleClose}>
-                        <CloseButton />
-                      </IconButton>
+                      {/*@ts-ignore*/}
+                      <CloseButtonX onClick={handleClose} />
                     </Stack>
 
                     <Stack spacing={2} sx={{ mx: 2, mt: 2 }}>
                       <TextFieldX
                         label="First Name *"
-                        {...getFieldProps("firstName")}
                         error={touched.firstName && Boolean(errors.firstName)}
                         helperText={touched.firstName && errors.firstName}
+                        prefixIcon={<MdAccountCircle size={24} />}
+                        {...getFieldProps("firstName")}
                       />
 
                       <TextFieldX
+                        children={undefined}
                         label="Last Name *"
-                        {...getFieldProps("lastName")}
                         error={touched.lastName && Boolean(errors.lastName)}
                         helperText={touched.lastName && errors.lastName}
+                        prefixIcon="KES"
+                        {...getFieldProps("lastName")}
                       />
 
                       <TextFieldX
                         label="Email Address *"
-                        {...getFieldProps("emailAddress")}
                         error={
                           touched.emailAddress && Boolean(errors.emailAddress)
                         }
                         helperText={touched.emailAddress && errors.emailAddress}
+                        prefixIcon={<MdAttachEmail size={24} />}
+                        {...getFieldProps("emailAddress")}
                       />
 
                       <TextFieldX
                         label="Domain *"
-                        select
-                        {...getFieldProps("domain")}
                         error={touched.domain && Boolean(errors.domain)}
+                        select
                         helperText={touched.domain && errors.domain}
+                        prefixIcon={<MdOutlineDomain size={24} />}
+                        {...getFieldProps("domain")}
                       >
-                        {values.domains.map((name, i) => (
-                          <MenuItem
-                            key={i}
-                            value={name}
-                            sx={{
-                              "&.Mui-selected": {
-                                backgroundImage:
-                                  "linear-gradient(-15deg, #fdfcfb 0%, #efe7fa 10%)",
-                                borderRadius: 5,
-                                mx: 1,
-                              },
-                              "&:hover": {
-                                backgroundImage:
-                                  "linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%)",
-                                borderRadius: 5,
-                                transition: "transform 0.5s",
-                                transform: "scale(1.05)",
-                                mx: 1,
-                              },
-                            }}
-                          >
-                            {name}
-                          </MenuItem>
-                        ))}
+                        {domains &&
+                          domains.data.map((domain: string, i: number) => (
+                            <MenuItem
+                              key={i}
+                              value={domain}
+                              sx={{
+                                "&.Mui-selected": {
+                                  backgroundImage:
+                                    "linear-gradient(-15deg, #fdfcfb 0%, #efe7fa 10%)",
+                                  borderRadius: 5,
+                                  mx: 1,
+                                },
+                                "&:hover": {
+                                  backgroundImage:
+                                    "linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%)",
+                                  borderRadius: 5,
+                                  transition: "transform 0.5s",
+                                  transform: "scale(1.05)",
+                                  mx: 1,
+                                },
+                              }}
+                            >
+                              {domain}
+                            </MenuItem>
+                          ))}
                       </TextFieldX>
                     </Stack>
 
                     <Grid
                       display="flex"
                       justifyContent="flex-end"
-                      sx={{ px: 1, mt: 2 }}
+                      sx={{ mx: 3, mt: 3 }}
                     >
                       <LoadingButton
                         type="submit"
@@ -214,7 +219,7 @@ export default function AddUser() {
                         }
                         variant="outlined"
                         sx={{
-                          borderRadius: 5,
+                          borderRadius: 4,
                           borderStyle: "double",
                           borderWidth: 4,
                           "&:hover": {

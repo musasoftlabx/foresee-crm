@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
@@ -15,10 +13,10 @@ import styles from "../../styles/Alert.module.css";
 import { useAlertStore } from "../../store";
 
 interface Gradients {
-  success: String[];
-  info: String[];
-  warning: String[];
-  error: String[];
+  success: [String, String];
+  info: [String, String];
+  warning: [String, String];
+  error: [String, String];
 }
 
 const gradients: Gradients = {
@@ -29,15 +27,10 @@ const gradients: Gradients = {
 };
 
 export default function Alert() {
-  const [status, setStatus] = useState("warning");
-  const [subject, setSubject] = useState("Alert Subject");
-  const [body, setBody] = useState(
-    "Lorem Ipsum is simply dummy text of the printing and typesetting industry."
-  );
-
-  const handleClose = useAlertStore((state) => state.toggle);
-
-  useEffect(() => {}, []);
+  const handleClose = useAlertStore((state) => state.alert);
+  const status = useAlertStore((state) => state.status);
+  const subject = useAlertStore((state) => state.subject);
+  const body = useAlertStore((state) => state.body);
 
   const style = {
     backgroundColor: "#fff",
@@ -64,13 +57,10 @@ export default function Alert() {
             style={{ color: "#fff", fontSize: "36px" }}
           />
         );
-        break;
       case "warning":
         return <IoWarningOutline style={{ color: "#fff", fontSize: "36px" }} />;
-        break;
       case "error":
         return <FaServer style={{ color: "#fff", fontSize: "36px" }} />;
-        break;
       default:
         return <BsPatchCheck style={{ color: "#fff", fontSize: "36px" }} />;
     }
@@ -78,9 +68,6 @@ export default function Alert() {
 
   return (
     <div>
-      {/*  <Button variant="outlined" onClick={handleClickOpen}>
-        Open alert dialog
-      </Button> */}
       <Modal
         open={useAlertStore((state) => state.isOpen)}
         onClose={handleClose}

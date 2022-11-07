@@ -12,9 +12,10 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Alert from "../components/Dialogs/Alert";
 
 import axios from "axios";
-axios.defaults.baseURL = "./api/";
+axios.defaults.baseURL = "http://localhost:3333/";
 axios.defaults.headers.common["Authorization"] = "dwgfewsfwefewfe";
 axios.defaults.headers.post["Content-Type"] = "application/json";
+axios.defaults.headers.post["Accept"] = "application/json";
 
 declare module "@mui/material/styles" {
   interface PaletteOptions {
