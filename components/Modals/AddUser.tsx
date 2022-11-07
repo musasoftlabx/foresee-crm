@@ -96,13 +96,13 @@ export default function AddUser({ domains }: Domains) {
             onSubmit={(values, { setSubmitting, resetForm }) => {
               //@ts-ignore
               mutate(values, {
-                onSuccess: () => resetForm(),
+                onSuccess: () => (handleClose(), resetForm()),
                 onError: (error: any) => {
                   setSubmitting(false);
                   showAlert({
-                    status: "warning",
-                    subject: "An error occured",
-                    body: error.response.data.message,
+                    status: error.response.data.status,
+                    subject: error.response.data.subject,
+                    body: error.response.data.body,
                   });
                 },
                 onSettled: (data, error, variables, context) => {},
@@ -148,7 +148,7 @@ export default function AddUser({ domains }: Domains) {
                         label="Last Name *"
                         error={touched.lastName && Boolean(errors.lastName)}
                         helperText={touched.lastName && errors.lastName}
-                        prefixIcon="KES"
+                        prefixIcon={<MdAccountCircle size={24} />}
                         {...getFieldProps("lastName")}
                       />
 
