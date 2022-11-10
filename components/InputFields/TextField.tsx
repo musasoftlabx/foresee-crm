@@ -4,8 +4,8 @@ import { OutlinedInputProps } from "@mui/material/OutlinedInput";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField, { TextFieldProps } from "@mui/material/TextField";
 
-type PrefixIcon = { prefixIcon?: React.ReactNode };
-type AdditionalTextFieldProps = TextFieldProps & PrefixIcon;
+type prefixcon = { prefixcon?: React.ReactNode };
+type AdditionalTextFieldProps = TextFieldProps & prefixcon;
 
 const CustomTextField = styled((props: AdditionalTextFieldProps) => (
   <TextField
@@ -21,7 +21,7 @@ const CustomTextField = styled((props: AdditionalTextFieldProps) => (
               color: props.error ? "#d3302f" : "",
             }}
           >
-            {props.prefixIcon}
+            {props.prefixcon}
           </InputAdornment>
         ),
       } as Partial<OutlinedInputProps>
@@ -113,7 +113,7 @@ type TextFieldXProps = {
   select?: boolean;
   error?: boolean;
   helperText?: string | boolean;
-  prefixIcon?: React.ReactNode;
+  prefixcon?: React.ReactNode;
 };
 
 export const TextFieldX = (props: TextFieldXProps) => (

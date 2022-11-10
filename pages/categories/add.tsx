@@ -1,5 +1,7 @@
 import axios from "axios";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import * as Yup from "yup";
+import { Formik, Form } from "formik";
 
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
@@ -13,10 +15,10 @@ import Paper from "@mui/material/Paper";
 
 import { RiDeleteBin5Fill as DeleteIcon } from "react-icons/ri";
 
-import { useUserStore } from "../store";
-import { queryClient } from "./_app";
+import { useUserStore } from "../../store";
+import { queryClient } from "../_app";
 
-import AddUser from "../components/Modals/AddUser";
+import AddUser from "../../components/Modals/AddUser";
 
 const Users = () => {
   const handleOpen = useUserStore((state) => state.toggle);
@@ -113,14 +115,3 @@ const Users = () => {
 };
 
 export default Users;
-
-/* export async function getStaticProps() {
-  const x = await fetch("http://localhost:3333/GetDomains");
-  const y = await x.json();
-
-  return {
-    props: {
-      domains: y,
-    },
-  };
-} */

@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 
 import { styled, useTheme, createTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
+import Collapse from "@mui/material/Collapse";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -14,7 +15,7 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 //import { FcBusinesswoman } from "react-icons/fc";
-import { MdOutlineMenu } from "react-icons/md";
+import { MdOutlineMenu, MdExpandMore, MdExpandLess } from "react-icons/md";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -22,6 +23,7 @@ import ListItemText from "@mui/material/ListItemText";
 
 import { SiHomebridge, SiMicrosoftexcel, SiMarketo } from "react-icons/si";
 import { FaHospitalUser } from "react-icons/fa";
+import { FcPlus, FcList } from "react-icons/fc";
 
 const drawerWidth = 240;
 
@@ -161,11 +163,41 @@ export default function AppDrawer({ children }) {
               iconAlt: "",
               selected: false,
             },
-          ].map((item, index) => (
-            <ListItem key={item.name} disableGutters>
+            {
+              name: "Categories",
+              route: "/categories/",
+              icon: <FaHospitalUser style={{ width: 20, height: 20 }} />,
+              iconAlt: "",
+              selected: false,
+              expanded: true,
+              children: [
+                {
+                  name: "All Categories",
+                  route: "/categories/",
+                  icon: <FcList style={{ width: 20, height: 20 }} />,
+                  iconAlt: "",
+                  selected: false,
+                },
+                {
+                  name: "Add Category",
+                  route: "/categories/add",
+                  icon: <FcPlus style={{ width: 20, height: 20 }} />,
+                  iconAlt: "",
+                  selected: false,
+                },
+              ],
+            },
+          ].map((parent, index) => (
+            <React.Fragment key={index}>
+              {/* <ListItem key={parent.name} disableGutters> */}
               <ListItemButton
-                selected={item.route === router.route ? true : false}
-                onClick={() => router.push(item.route)}
+                key={parent.name}
+                selected={parent.route === router.route ? true : false}
+                onClick={() =>
+                  parent.children
+                    ? (parent.expanded = !parent.expanded)
+                    : router.push(parent.route)
+                }
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
@@ -200,14 +232,33 @@ export default function AppDrawer({ children }) {
                     color: "inherit",
                   }}
                 >
-                  {item.icon}
+                  {parent.icon}
                 </ListItemIcon>
                 <ListItemText
-                  primary={item.name}
+                  primary={parent.name}
                   sx={{ opacity: open ? 1 : 0 }}
                 />
+                {parent.children &&
+                  (parent.expanded ? <MdExpandLess /> : <MdExpandMore />)}
               </ListItemButton>
-            </ListItem>
+              {parent.children && (
+                <Collapse in={parent.expanded} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding>
+                    {parent.children.map((child, i) => (
+                      <ListItemButton
+                        key={i}
+                        onClick={() => router.push(child.route)}
+                        sx={{ pl: 4 }}
+                      >
+                        <ListItemIcon>{child.icon}</ListItemIcon>
+                        <ListItemText primary={child.name} />
+                      </ListItemButton>
+                    ))}
+                  </List>
+                </Collapse>
+              )}
+              {/* </ListItem> */}
+            </React.Fragment>
           ))}
         </List>
       </Drawer>

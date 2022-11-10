@@ -23,12 +23,12 @@ declare module "@mui/material/styles" {
   }
 }
 
-function MyApp({ Component, pageProps }: AppProps) {
-  const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
+function MyApp({ Component, pageProps }: AppProps) {
   const theme = createTheme({
     palette: {
-      mode: "light",
+      mode: "dark",
       white: {
         light: "#fff",
         main: "#fff",
@@ -48,7 +48,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <AppDrawer>
           <Component {...pageProps} />
         </AppDrawer>
-        <ReactQueryDevtools initialIsOpen={true} />
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ThemeProvider>
   );

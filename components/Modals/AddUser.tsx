@@ -17,13 +17,13 @@ import { useAlertStore, useUserStore } from "../../store";
 import { customTheme } from "../../utils/theme";
 import { TextFieldX } from "../InputFields/TextField";
 import { CloseButtonX } from "../InputFields/CloseButton";
+import { queryClient } from "../../pages/_app";
 
 import {
   MdAccountCircle,
   MdAttachEmail,
   MdOutlineDomain,
 } from "react-icons/md";
-import Button from "@mui/material/Button";
 
 type Domains = {
   domains: {
@@ -37,7 +37,9 @@ export default function AddUser({ domains }: Domains) {
   const showAlert = useAlertStore((state) => state.alert);
 
   // ? Server state definitions
-  const { mutate } = useMutation((body) => axios.post("AddUser", body));
+  const { mutate } = useMutation((body) => axios.post("Users", body));
+
+  //console.log(queryClient.getQueryState(["Users"]));
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -69,8 +71,8 @@ export default function AddUser({ domains }: Domains) {
             <path
               d="M0 447L16.7 425.5C33.3 404 66.7 361 100 358.3C133.3 355.7 166.7 393.3 200 385.7C233.3 378 266.7 325 300 314.7C333.3 304.3 366.7 336.7 400 355.2C433.3 373.7 466.7 378.3 500 371.2C533.3 364 566.7 345 600 338.5C633.3 332 666.7 338 700 367.3C733.3 396.7 766.7 449.3 800 431C833.3 412.7 866.7 323.3 883.3 278.7L900 234L900 0L883.3 0C866.7 0 833.3 0 800 0C766.7 0 733.3 0 700 0C666.7 0 633.3 0 600 0C566.7 0 533.3 0 500 0C466.7 0 433.3 0 400 0C366.7 0 333.3 0 300 0C266.7 0 233.3 0 200 0C166.7 0 133.3 0 100 0C66.7 0 33.3 0 16.7 0L0 0Z"
               fill="#0066FF"
-              stroke-linecap="round"
-              stroke-linejoin="miter"
+              strokeLinecap="round"
+              strokeLinejoin="miter"
             ></path>
           </svg>
           <Formik
@@ -93,26 +95,36 @@ export default function AddUser({ domains }: Domains) {
                 .required("Required"),
               domain: Yup.string().required("Required"),
             })}
-            onSubmit={(values, { setSubmitting, resetForm }) => {
+            onSubmit={(values, { setSubmitting, resetForm }) =>
               //@ts-ignore
               mutate(values, {
-                onSuccess: () => resetForm(),
+                onSuccess: (data) => {
+                  handleClose();
+                  resetForm();
+                  queryClient.setQueryData(["Users"], (prev: any) => ({
+                    ...prev,
+                    data: {
+                      ...prev.data,
+                      rows: [data.data, ...prev.data.rows],
+                    },
+                  }));
+                },
                 onError: (error: any) => {
                   setSubmitting(false);
                   showAlert({
-                    status: "warning",
-                    subject: "An error occured",
-                    body: error.response.data.message,
+                    status: error.response.data.status,
+                    subject: error.response.data.subject,
+                    body: error.response.data.body,
                   });
                 },
                 onSettled: (data, error, variables, context) => {},
-              });
-            }}
+              })
+            }
           >
             {({ errors, touched, getFieldProps, isSubmitting }) => (
               <Form>
                 <Grid container>
-                  <Grid xs={12}>
+                  <Grid item xs={12}>
                     <Stack
                       direction="row"
                       display="flex"
@@ -139,7 +151,7 @@ export default function AddUser({ domains }: Domains) {
                         label="First Name *"
                         error={touched.firstName && Boolean(errors.firstName)}
                         helperText={touched.firstName && errors.firstName}
-                        prefixIcon={<MdAccountCircle size={24} />}
+                        prefixcon={<MdAccountCircle size={24} />}
                         {...getFieldProps("firstName")}
                       />
 
@@ -148,7 +160,7 @@ export default function AddUser({ domains }: Domains) {
                         label="Last Name *"
                         error={touched.lastName && Boolean(errors.lastName)}
                         helperText={touched.lastName && errors.lastName}
-                        prefixIcon="KES"
+                        prefixcon={<MdAccountCircle size={24} />}
                         {...getFieldProps("lastName")}
                       />
 
@@ -158,7 +170,7 @@ export default function AddUser({ domains }: Domains) {
                           touched.emailAddress && Boolean(errors.emailAddress)
                         }
                         helperText={touched.emailAddress && errors.emailAddress}
-                        prefixIcon={<MdAttachEmail size={24} />}
+                        prefixcon={<MdAttachEmail size={24} />}
                         {...getFieldProps("emailAddress")}
                       />
 
@@ -167,7 +179,7 @@ export default function AddUser({ domains }: Domains) {
                         error={touched.domain && Boolean(errors.domain)}
                         select
                         helperText={touched.domain && errors.domain}
-                        prefixIcon={<MdOutlineDomain size={24} />}
+                        prefixcon={<MdOutlineDomain size={24} />}
                         {...getFieldProps("domain")}
                       >
                         {domains &&
