@@ -2,32 +2,34 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
+import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import CircularProgress from "@mui/material/CircularProgress";
+import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Unstable_Grid2";
-import LoadingButton from "@mui/lab/LoadingButton";
 import IconButton from "@mui/material/IconButton";
-
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
+import LoadingButton from "@mui/lab/LoadingButton";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 
-import { RiDeleteBin5Fill } from "react-icons/ri";
-import { MdOutlineAdd } from "react-icons/md";
+import { RiDeleteBinLine, RiDeleteBin4Fill } from "react-icons/ri";
+import { MdCategory } from "react-icons/md";
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 
 import { queryClient } from "../_app";
-import { TextFieldX } from "../../components/InputFields/TextField";
 
 interface CategoryProps {
   _id: string;
   category: string;
   subcategory: string;
+  subcategories: string[];
 }
 
 export default function Categories() {
@@ -40,58 +42,55 @@ export default function Categories() {
     onSuccess: (data) => setCategories(data.rows),
   });
 
-  const { mutate } = useMutation((body) => axios.post("Categories", body));
-  const { mutate: addSubCategory } = useMutation((body) =>
-    axios.post("Categories/Subcategory", body)
+  const { mutate: addCategory } = useMutation((body) =>
+    axios.post("Categories", body)
   );
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    mutate(JSON.stringify({ category }), {
+  const { mutate: addSubCategory } = useMutation(
+    (body) => axios.post("Categories/Subcategory", body),
+    {
       onSuccess: (data) =>
-        queryClient.setQueryData(["Categories"], (prev: any) => ({
-          ...prev,
-          data: {
-            ...prev.data,
-            rows: [data.data, ...prev.data.rows],
-          },
-        })),
-    });
-  };
+        setCategories((prev) => [
+          ...prev.map((category: CategoryProps) => {
+            if (category._id === data.data._id) {
+              category.subcategories = data.data.subcategories;
+              category.subcategory = "";
+            }
+            return category;
+          }),
+        ]),
+    }
+  );
 
-  const { mutate: remove } = useMutation((_id) =>
+  const { mutate: deleteCategory } = useMutation((_id) =>
     axios.delete(`Categories/${_id}`)
   );
 
-  const handleDelete = (_id: string) =>
-    //@ts-ignore
-    remove(_id, {
-      onSuccess: () => {
-        queryClient.setQueryData(["Categories"], (prev: any) => ({
-          ...prev,
-          data: {
-            ...prev.data,
-            rows: [
-              ...prev.data.rows.filter(
-                (row: { _id: string }) => row._id !== _id
-              ),
-            ],
-          },
-        }));
-      },
-      onError: (error: any) => {
-        showAlert({
-          status: error.response.data.status,
-          subject: error.response.data.subject,
-          body: error.response.data.body,
-        });
-      },
-    });
+  const { mutate: deleteSubCategory } = useMutation((param) =>
+    axios.delete(`Categories/${param._id}/${param.subcategory}`)
+  );
 
   return (
     <Container maxWidth="xs">
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+
+          addCategory(JSON.stringify({ category }), {
+            onSuccess: (data) => {
+              setCategories((prev) => [data.data, ...prev]);
+              setCategory("");
+            },
+            /* queryClient.setQueryData(["Categories"], (prev: any) => ({
+                ...prev,
+                data: {
+                  ...prev.data,
+                  rows: [data.data, ...prev.data.rows],
+                },
+              })), */
+          });
+        }}
+      >
         <Grid container>
           <Grid display="flex" justifyContent="center" xs={12}>
             <TextField
@@ -144,38 +143,78 @@ export default function Categories() {
       >
         {categories &&
           categories.map((item, i: number) => (
-            <ListItem
-              key={i}
-              secondaryAction={
-                <Tooltip title="Add sub category">
-                  <IconButton edge="end" aria-label="comments">
-                    <MdOutlineAdd />
-                  </IconButton>
-                </Tooltip>
-              }
-            >
-              <Tooltip title="Delete category">
+            <>
+              {i > 0 && <Divider sx={{ mb: 1 }} />}
+
+              <ListItem
+                key={i}
+                secondaryAction={
+                  <Tooltip title="Delete category">
+                    <ListItemAvatar>
+                      <IconButton
+                        onClick={() =>
+                          //@ts-ignore
+                          deleteCategory(item._id, {
+                            onSuccess: () => {
+                              setCategories((prev) => [
+                                ...prev.filter(
+                                  (category: CategoryProps) =>
+                                    category._id !== item._id
+                                ),
+                              ]);
+                              /* queryClient.setQueryData(
+                                ["Categories"],
+                                (prev: any) => ({
+                                  ...prev,
+                                  data: {
+                                    ...prev.data,
+                                    rows: [
+                                      ...prev.data.rows.filter(
+                                        (row: { _id: string }) =>
+                                          row._id !== _id
+                                      ),
+                                    ],
+                                  },
+                                })
+                              ); */
+                            },
+                            onError: (error: any) => {
+                              showAlert({
+                                status: error.response.data.status,
+                                subject: error.response.data.subject,
+                                body: error.response.data.body,
+                              });
+                            },
+                          })
+                        }
+                        color="error"
+                        sx={{
+                          ml: 3,
+                          "&:hover": {
+                            background: "#fbdbdb",
+                          },
+                        }}
+                      >
+                        <RiDeleteBin4Fill />
+                      </IconButton>
+                    </ListItemAvatar>
+                  </Tooltip>
+                }
+              >
                 <ListItemAvatar>
-                  <IconButton
-                    onClick={() => handleDelete(item._id)}
-                    color="error"
-                    sx={{
-                      background: "#ffeeee",
-                      "&:hover": {
-                        background: "#fbdbdb",
-                      },
-                    }}
-                  >
-                    <RiDeleteBin5Fill />
+                  <IconButton>
+                    <MdCategory size={28} />
                   </IconButton>
                 </ListItemAvatar>
-              </Tooltip>
-              <ListItemText
-                primary={item.category}
-                secondary={
+
+                <ListItemText primary={item.category} />
+              </ListItem>
+
+              <List dense sx={{ pb: 3 }}>
+                <Box sx={{ px: 5 }}>
                   <TextField
-                    label="Add a new category"
-                    variant="filled"
+                    label="Add a sub category"
+                    variant="standard"
                     fullWidth
                     size="small"
                     onChange={(e) =>
@@ -198,11 +237,70 @@ export default function Categories() {
                       )
                     }
                     value={item.subcategory}
-                    sx={{ borderRadius: 10, mb: 3, textAlign: "center" }}
+                    sx={{ mb: 3 }}
                   />
-                }
-              />
-            </ListItem>
+                </Box>
+                {item.subcategories &&
+                  item.subcategories.map((subcategory: string, j: number) => (
+                    <ListItem key={j} sx={{ pl: 4 }}>
+                      <IconButton sx={{ mt: -0.5, mr: 1 }}>
+                        <IoMdCheckmarkCircleOutline size={16} />
+                      </IconButton>
+
+                      <ListItemText primary={subcategory} />
+
+                      <ListItemAvatar>
+                        <Tooltip
+                          title="Delete sub category"
+                          placement="left-start"
+                        >
+                          <IconButton
+                            onClick={() =>
+                              deleteSubCategory(
+                                //@ts-ignore
+                                { _id: item._id, subcategory },
+                                {
+                                  onSuccess: () => {
+                                    setCategories((prev) => [
+                                      ...prev.map((category: CategoryProps) => {
+                                        if (category._id === item._id) {
+                                          category.subcategories.splice(
+                                            category.subcategories.indexOf(
+                                              subcategory
+                                            ),
+                                            1
+                                          );
+                                        }
+                                        return category;
+                                      }),
+                                    ]);
+                                  },
+                                  onError: (error: any) => {
+                                    showAlert({
+                                      status: error.response.data.status,
+                                      subject: error.response.data.subject,
+                                      body: error.response.data.body,
+                                    });
+                                  },
+                                }
+                              )
+                            }
+                            color="error"
+                            sx={{
+                              mt: -0.5,
+                              "&:hover": {
+                                background: "#fbdbdb",
+                              },
+                            }}
+                          >
+                            <RiDeleteBinLine size={20} />
+                          </IconButton>
+                        </Tooltip>
+                      </ListItemAvatar>
+                    </ListItem>
+                  ))}
+              </List>
+            </>
           ))}
       </List>
     </Container>
