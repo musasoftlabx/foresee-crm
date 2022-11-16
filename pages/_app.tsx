@@ -14,7 +14,7 @@ import Alert from "../components/Dialogs/Alert";
 
 import axios from "axios";
 
-axios.defaults.baseURL = process.env.NEXT_PUBLIC_API;
+axios.defaults.baseURL = "http://localhost:3333/"; //process.env.NEXT_PUBLIC_API;
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.headers.post["Accept"] = "application/json";
 axios.interceptors.request.use(
