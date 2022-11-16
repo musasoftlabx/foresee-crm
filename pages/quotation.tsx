@@ -31,6 +31,8 @@ import { MobileDatePicker } from "@mui/x-date-pickers/MobileDatePicker";
 
 import * as Yup from "yup";
 
+import AppDrawer from "../components/AppDrawer";
+
 const CustomTextField = styled((props: TextFieldProps) => (
   <TextField
     InputProps={{ disableUnderline: true } as Partial<OutlinedInputProps>}
@@ -96,7 +98,7 @@ const Quotation = (props) => {
   console.log(props);
 
   return (
-    <>
+    <AppDrawer>
       <Formik
         initialValues={{
           offerDate: date,
@@ -495,7 +497,7 @@ const Quotation = (props) => {
           </Form>
         )}
       </Formik>
-    </>
+    </AppDrawer>
   );
 };
 

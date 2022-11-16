@@ -16,31 +16,25 @@ import { RiDeleteBin5Fill as DeleteIcon } from "react-icons/ri";
 import { useUserStore } from "../store";
 import { queryClient } from "./_app";
 
-import AppDrawer from "../components/AppDrawer";
 import AddUser from "../components/Modals/AddUser";
+import AddStore from "../components/Modals/AddStore";
 
-const Users = () => {
+const Stores = () => {
   const handleOpen = useUserStore((state) => state.toggle);
 
-  const { data } = useQuery(
-    ["GetDomains"],
-    ({ queryKey }) => axios.get(queryKey[0]),
-    { refetchOnWindowFocus: false }
-  );
-
-  const { data: users } = useQuery(
-    ["Users"],
+  const { data: stores } = useQuery(
+    ["Stores"],
     ({ queryKey }) => axios.get(queryKey[0]),
     { select: (data) => data.data }
   );
 
-  const { mutate } = useMutation((_id) => axios.delete(`Users/${_id}`));
+  const { mutate } = useMutation((_id) => axios.delete(`Stores/${_id}`));
 
   const handleDelete = (_id: string) =>
     //@ts-ignore
     mutate(_id, {
       onSuccess: () => {
-        queryClient.setQueryData(["Users"], (prev: any) => ({
+        queryClient.setQueryData(["Stores"], (prev: any) => ({
           ...prev,
           data: {
             ...prev.data,
@@ -62,33 +56,31 @@ const Users = () => {
     });
 
   return (
-    <AppDrawer>
-      <AddUser domains={data} />
+    <>
+      <AddStore />
 
       <Button variant="outlined" onClick={handleOpen}>
-        ADD A NEW USER
+        ADD A NEW STORE
       </Button>
 
       <TableContainer component={Paper}>
         <Table sx={{ mt: 3, minWidth: 650 }} size="small">
           <TableHead>
             <TableRow>
-              {users &&
-                users.columns.map((column: string, i: number) => (
+              {stores &&
+                stores.columns.map((column: string, i: number) => (
                   <TableCell key={i}>{column}</TableCell>
                 ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {users &&
-              users.rows.map((user, i: number) => (
+            {stores &&
+              stores.rows.map((store, i: number) => (
                 <TableRow key={i}>
-                  <TableCell>{user.firstName}</TableCell>
-                  <TableCell>{user.lastName}</TableCell>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>{user.emailAddress}</TableCell>
-                  <TableCell>{user.domain}</TableCell>
-                  <TableCell>{user.createdAt}</TableCell>
+                  <TableCell>{store.code}</TableCell>
+                  <TableCell>{store.name}</TableCell>
+                  <TableCell>{store.country}</TableCell>
+                  <TableCell>{store.client}</TableCell>
                   <TableCell>
                     {
                       <IconButton
@@ -100,7 +92,7 @@ const Users = () => {
                           },
                         }}
                       >
-                        <DeleteIcon onClick={() => handleDelete(user._id)} />
+                        <DeleteIcon onClick={() => handleDelete(store._id)} />
                       </IconButton>
                     }
                   </TableCell>
@@ -109,19 +101,8 @@ const Users = () => {
           </TableBody>
         </Table>
       </TableContainer>
-    </AppDrawer>
+    </>
   );
 };
 
-export default Users;
-
-/* export async function getStaticProps() {
-  const x = await fetch("http://localhost:3333/GetDomains");
-  const y = await x.json();
-
-  return {
-    props: {
-      domains: y,
-    },
-  };
-} */
+export default Stores;

@@ -7,6 +7,12 @@ const nextConfig = {
     JWT_SECRET: "F0r3S3e1nVENtOr11mAnaG3MeNt5ySt3m",
     JWT_EXPIRY: "100h",
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 module.exports = nextConfig;

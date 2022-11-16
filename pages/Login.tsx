@@ -1,48 +1,52 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
-import Box from "@mui/material/Box";
-import FormHelperText from "@mui/material/FormHelperText";
-import FormControl from "@mui/material/FormControl";
-import InputAdornment from "@mui/material/InputAdornment";
-import InputLabel from "@mui/material/InputLabel";
+import { useRouter } from "next/router";
+
 import Grid from "@mui/material/Unstable_Grid2";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-
-import LoadingButton from "@mui/lab/LoadingButton";
 
 import { MdAccountCircle, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { AiFillLock } from "react-icons/ai";
 import IconButton from "@mui/material/IconButton";
 
-//import styles from '../styles/Login.module.css'
-
+import axios from "axios";
 import { Formik, Form } from "formik";
+import { useMutation } from "@tanstack/react-query";
 import * as Yup from "yup";
 
-/* import Head from "next/head";
-import Script from "next/script"; */
+import { useAlertStore } from "../store";
 
-/* import Vue from "vue";
-import Vuetify from "vuetify"; */
+import { TextFieldX } from "../components/InputFields/TextField";
+import { LoadingButtonX } from "../components/InputFields/LoadingButton";
+
+import { deleteCookie } from "cookies-next";
 
 const Login = () => {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(true);
+
+  // ? Client state definitions
+  const showAlert = useAlertStore((state) => state.alert);
+
+  // ? Server state definitions
+  const { mutate: login } = useMutation((body) => axios.post("login", body));
+
+  useEffect(() => {
+    deleteCookie("__aT");
+  }, []);
 
   return (
     <Grid container minHeight={"100vh"}>
-      <Grid xs={0} md={6} lg={7} sx={{ bgcolor: "blueviolet" }}>
-        djdj
-      </Grid>
+      <Grid xs={0} md={6} lg={7} sx={{ bgcolor: "blueviolet" }}></Grid>
       <Grid
         md={6}
         lg={5}
         display="flex"
         flexDirection="column"
         justifyContent="center"
-        sx={{ px: 20 }}
+        sx={{ px: 10 }}
       >
         <Typography variant="h4" sx={{ fontFamily: "Rubik" }}>
           Let&apos;s get started
@@ -68,117 +72,71 @@ const Login = () => {
               .max(20, "Must be 20 characters or less")
               .required("Required"),
           })}
-          onSubmit={(values, actions) => {
-            setTimeout(() => {
-              actions.setSubmitting(false);
-              actions.resetForm({
-                values: {
-                  username: "",
-                  password: "",
+          onSubmit={(values, { setSubmitting }) => {
+            const encoded = new Buffer(values.password).toString("base64");
+            login(
+              //@ts-ignore
+              { ...values, password: encoded },
+              {
+                onSuccess: () => router.push("/"),
+                onError: (error: any) => {
+                  setSubmitting(false);
+                  showAlert({
+                    status: error.response.data.status,
+                    subject: error.response.data.subject,
+                    body: error.response.data.body,
+                  });
                 },
-              });
-            }, 4000);
+              }
+            );
           }}
         >
-          {({ values, errors, touched, isSubmitting, getFieldProps }) => (
+          {({ errors, touched, isSubmitting, getFieldProps }) => (
             <Form>
               <Stack spacing={2}>
-                <TextField
-                  sx={{ borderRadius: 75 }}
+                <TextFieldX
                   label="Username"
                   placeholder="Enter username"
-                  variant="outlined"
-                  {...getFieldProps("username")}
+                  prefixcon={<MdAccountCircle size={24} />}
                   error={touched.username && Boolean(errors.username)}
                   helperText={touched.username && errors.username}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <MdAccountCircle
-                          size={24}
-                          style={{
-                            color:
-                              touched.username && errors.username
-                                ? "#d3302f"
-                                : "",
-                          }}
-                        />
-                      </InputAdornment>
-                    ),
-                  }}
+                  {...getFieldProps("username")}
                 />
 
-                <FormControl variant="outlined">
-                  <InputLabel
-                    style={{
-                      color:
-                        touched.password && errors.password ? "#d3302f" : "",
-                    }}
-                  >
-                    Password
-                  </InputLabel>
-                  <OutlinedInput
-                    type={showPassword ? "password" : "text"}
-                    label="Password"
-                    placeholder="Enter password"
-                    {...getFieldProps("password")}
-                    error={touched.password && Boolean(errors.password)}
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <AiFillLock
-                          size={24}
-                          style={{
-                            color:
-                              touched.password && errors.password
-                                ? "#d3302f"
-                                : "",
-                          }}
-                        />
-                      </InputAdornment>
-                    }
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          onMouseDown={(event) => event.preventDefault()}
-                          edge="end"
-                        >
-                          {showPassword ? (
-                            <MdVisibilityOff />
-                          ) : (
-                            <MdVisibility />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                  />
-                  <FormHelperText
-                    style={{
-                      color:
-                        touched.password && errors.password ? "#d3302f" : "",
-                    }}
-                  >
-                    {touched.password && errors.password}
-                  </FormHelperText>
-                </FormControl>
+                <TextFieldX
+                  type={showPassword ? "password" : "text"}
+                  label="Password"
+                  placeholder="Enter password"
+                  error={touched.password && Boolean(errors.password)}
+                  helperText={touched.password && errors.password}
+                  {...getFieldProps("password")}
+                  prefixcon={<AiFillLock size={24} />}
+                  suffixcon={
+                    <IconButton
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      onMouseDown={(event) => event.preventDefault()}
+                      edge="end"
+                      sx={{ color: errors.password ? "#d3302f" : "" }}
+                    >
+                      {showPassword ? <MdVisibility /> : <MdVisibilityOff />}
+                    </IconButton>
+                  }
+                />
 
-                <LoadingButton
+                <LoadingButtonX
                   type="submit"
+                  placement="center"
                   size="large"
-                  // @ts-ignore
                   disabled={
-                    !values.username ||
-                    !values.password ||
-                    errors.username ||
-                    errors.password ||
+                    JSON.stringify(touched) === "{}" ||
+                    JSON.stringify(errors) !== "{}" ||
                     isSubmitting
                   }
                   loading={isSubmitting}
-                  loadingIndicator="LOGGING IN....."
-                  variant="contained"
+                  loadingtext="LOGGING IN..."
                 >
                   LOGIN
-                </LoadingButton>
+                </LoadingButtonX>
               </Stack>
             </Form>
           )}

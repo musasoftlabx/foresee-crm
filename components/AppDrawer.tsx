@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -24,6 +24,9 @@ import ListItemText from "@mui/material/ListItemText";
 import { SiHomebridge, SiMicrosoftexcel, SiMarketo } from "react-icons/si";
 import { FaHospitalUser } from "react-icons/fa";
 import { FcPlus, FcList } from "react-icons/fc";
+import { Button } from "@mui/material";
+
+import { getCookie } from "cookies-next";
 
 const drawerWidth = 240;
 
@@ -107,6 +110,12 @@ export default function AppDrawer({ children }) {
     setOpen((prev) => (prev = !prev));
   };
 
+  /* useEffect(() => {
+    if (!getCookie("__at")) {
+      router.replace("/login");
+    }
+  }, []); */
+
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar
@@ -123,6 +132,12 @@ export default function AppDrawer({ children }) {
           <IconButton onClick={handleDrawerClose}>
             <MdOutlineMenu />
           </IconButton>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Foresee CRM
+          </Typography>
+          <Button variant="text" onClick={() => router.replace("/login")}>
+            LOGOUT
+          </Button>
           {/* <IconButton onClick={handleDrawerOpen} edge="start">
             <FcBusinesswoman />
           </IconButton>
@@ -186,6 +201,13 @@ export default function AppDrawer({ children }) {
                   selected: false,
                 },
               ],
+            },
+            {
+              name: "Stores",
+              route: "/stores",
+              icon: <FaHospitalUser style={{ width: 20, height: 20 }} />,
+              iconAlt: "",
+              selected: false,
             },
           ].map((parent, index) => (
             <React.Fragment key={index}>

@@ -1,132 +1,171 @@
-import { useState, forwardRef } from "react";
-
+import axios from "axios";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
 import Slide from "@mui/material/Slide";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-
-import OutlinedInput from "@mui/material/OutlinedInput";
-import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import Chip from "@mui/material/Chip";
 
-const TicketForm = () => {
-  const [open, setOpen] = useState(true);
+import { TextFieldX } from "../components/InputFields/TextField";
+import { LoadingButtonX } from "../components/InputFields/LoadingButton";
+import { CloseButtonX } from "../components/InputFields/CloseButton";
 
-  /* const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue((event.target as HTMLInputElement).value);
-  }; */
-
-  //const categories = ["Broken Pipe", "Electrical Issues", "Wiring"];
-
-  const categories = [
-    {
-      category: "Electrical",
-      subCategories: ["Other", "Bulb replacement"],
-    },
-    {
-      category: "Plumbering",
-      subCategories: ["Water pipes", "Clogging"],
-    },
-    {
-      category: "Construction",
-      subCategories: ["Other", "Bulb replacement"],
-    },
-  ];
+const TicketForm = ({
+  categories,
+  open,
+  setOpen,
+}: {
+  categories: any;
+  open: boolean;
+  setOpen: any;
+}) => {
+  // ? Server state mutation(s)
+  const { mutate: raiseTicket } = useMutation((body) =>
+    axios.post("Tickets", body)
+  );
 
   return (
     <Dialog
       open={open}
       TransitionComponent={Slide}
-      keepMounted
       onClose={() => setOpen(false)}
     >
       <Formik
         initialValues={{
-          ticketTypes: ["Standard", "Urgent"],
-          ticketType: "Standard",
-          selectedIssues: [],
-          issue: "",
-          extraDetails: "",
+          category: "",
+          subcategory: "",
+          details: "",
         }}
-        /* validationSchema={Yup.object({
-          issue: Yup.string()
-            .max(50, "Cannot exceed 50 characters")
-            .required("Required"),
-          extraDeails: Yup.string()
-            .max(20, "Must be 20 characters or less")
-            .required("Required"),
-        })} */
-        onSubmit={(values, actions) => {
-          console.log(values);
-          actions.setSubmitting(false);
-          actions.resetForm({
-            values: {
-              ticketTypes: ["Standard", "Urgent"],
-              ticketType: "Standard",
-              selectedIssues: [],
-              issue: "",
-              extraDetails: "",
+        validationSchema={Yup.object({
+          details: Yup.string().max(50, "Must be 50 characters or less"),
+        })}
+        onSubmit={(values, { setSubmitting, resetForm }) =>
+          raiseTicket(values, {
+            onSuccess: (data) => {
+              resetForm();
+              setOpen(false);
             },
-          });
-        }}
+            onError: (error: any) => {
+              setSubmitting(false);
+              showAlert({
+                status: error.response.data.status,
+                subject: error.response.data.subject,
+                body: error.response.data.body,
+              });
+            },
+          })
+        }
       >
         {({ values, errors, touched, isSubmitting, getFieldProps }) => (
           <Form>
+            <Stack
+              direction="row"
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              sx={{ mx: 3, mt: 3 }}
+            >
+              <Typography
+                sx={{
+                  color: "white",
+                  fontFamily: "Lobster",
+                  fontSize: 26,
+                  mt: -0.5,
+                }}
+              >
+                Raise a ticket
+              </Typography>
+              {/*@ts-ignore*/}
+              <CloseButtonX />
+            </Stack>
+
             <Stack spacing={2} sx={{ p: 3 }}>
-              <Typography variant="h6">Raise a ticket</Typography>
-              <FormControl>
-                <InputLabel id="demo-multiple-chip-label">Category</InputLabel>
-                <Select multiple {...getFieldProps("selectedIssues")}>
-                  {categories.map((category, i) => (
-                    <MenuItem key={i} value={category}>
-                      {category}
+              <TextFieldX
+                label="Category *"
+                select
+                //prefixcon={<MdOutlineDomain size={24} />}
+                {...getFieldProps("category")}
+              >
+                {categories &&
+                  categories.map((category, i) => (
+                    <MenuItem key={i} value={category.category}>
+                      {category.category}
                     </MenuItem>
                   ))}
-                </Select>
-              </FormControl>
+              </TextFieldX>
 
-              <FormControl>
-                <InputLabel id="demo-multiple-chip-label">
-                  Sub-Category
-                </InputLabel>
-                <Select multiple {...getFieldProps("selectedIssues")}>
-                  {commonIssues.map((name, i) => (
-                    <MenuItem key={i} value={name}>
-                      {name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              {values.category && (
+                <TextFieldX
+                  label="Sub-Category *"
+                  error={touched.subcategory && Boolean(errors.subcategory)}
+                  select
+                  helperText={touched.subcategory && errors.subcategory}
+                  //prefixcon={<MdOutlineDomain size={24} />}
+                  {...getFieldProps("subcategory")}
+                >
+                  {categories &&
+                    categories[
+                      categories.findIndex(
+                        (item) => item.category === values.category
+                      )
+                    ]?.subcategories.map((subcategory: string, i: number) => (
+                      <MenuItem
+                        key={i}
+                        value={subcategory}
+                        sx={{
+                          "&.Mui-selected": {
+                            backgroundImage:
+                              "linear-gradient(-15deg, #fdfcfb 0%, #efe7fa 10%)",
+                            borderRadius: 5,
+                            mx: 1,
+                          },
+                          "&:hover": {
+                            backgroundImage:
+                              "linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%)",
+                            borderRadius: 5,
+                            transition: "transform 0.5s",
+                            transform: "scale(1.05)",
+                            mx: 1,
+                          },
+                        }}
+                      >
+                        {subcategory}
+                      </MenuItem>
+                    ))}
+                </TextFieldX>
+              )}
 
-              <TextField
-                variant="outlined"
-                label="Issue at hand"
-                {...getFieldProps("issue")}
-                error={touched.issue && Boolean(errors.issue)}
-                helperText={touched.issue && errors.issue}
-              />
-              <TextField
-                variant="outlined"
+              <TextFieldX
                 label="Extra Details (Optional)"
                 multiline
-                rows={7}
-                {...getFieldProps("extraDetails")}
-              />
-              <Button type="submit" variant="outlined">
-                SUBMIT
-              </Button>
+                rows={5}
+                //prefixcon={<MdOutlineDomain size={24} />}
+                {...getFieldProps("details")}
+                helperText={`${values.details.length} chars`}
+              >
+                {categories &&
+                  categories.map((category, i) => (
+                    <MenuItem key={i} value={category.category}>
+                      {category.category}
+                    </MenuItem>
+                  ))}
+              </TextFieldX>
+
+              <LoadingButtonX
+                type="submit"
+                placement="center"
+                disabled={
+                  JSON.stringify(touched) === "{}" ||
+                  JSON.stringify(errors) !== "{}" ||
+                  isSubmitting
+                }
+                loading={isSubmitting}
+              >
+                ADD USER
+              </LoadingButtonX>
             </Stack>
           </Form>
         )}
