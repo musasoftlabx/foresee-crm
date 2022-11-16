@@ -110,11 +110,11 @@ export default function AppDrawer({ children }) {
     setOpen((prev) => (prev = !prev));
   };
 
-  /* useEffect(() => {
-    if (!getCookie("__at")) {
+  useEffect(() => {
+    if (!getCookie("__aT")) {
       router.replace("/login");
     }
-  }, []); */
+  }, []);
 
   return (
     <Box sx={{ display: "flex" }}>
