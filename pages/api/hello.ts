@@ -1,13 +1,18 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from "next";
 
-type Data = {
-  name: string
-}
+type Data = any;
+
+/* export const cookies = () => {
+  return "aaa";
+}; */
+//export let cookies = {};
 
 export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  res.status(200).json({ name: 'John Doe' })
+  //cookies = req.cookies;
+  //res.status(200).json(req.cookies);
+  res.status(200).json({ a: 1 });
 }

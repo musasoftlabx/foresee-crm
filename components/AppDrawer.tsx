@@ -110,12 +110,6 @@ export default function AppDrawer({ children }) {
     setOpen((prev) => (prev = !prev));
   };
 
-  useEffect(() => {
-    if (!getCookie("__aT")) {
-      router.replace("/login");
-    }
-  }, []);
-
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar
@@ -156,13 +150,6 @@ export default function AppDrawer({ children }) {
               icon: <SiHomebridge style={{ width: 20, height: 20 }} />,
               iconAlt: "",
               selected: true,
-            },
-            {
-              name: "Create Quotation",
-              route: "/quotation",
-              icon: <SiMicrosoftexcel style={{ width: 20, height: 20 }} />,
-              iconAlt: "",
-              selected: false,
             },
             {
               name: "View Tickets",

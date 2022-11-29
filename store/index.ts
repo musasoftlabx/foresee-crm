@@ -25,6 +25,22 @@ interface useUserStore {
   toggle: () => void;
 }
 
+interface useModalStore {
+  isOpen: boolean;
+  toggle: () => void;
+}
+
+interface useSnackBarStore {
+  isOpen: boolean;
+  message: any;
+  notify: ({ message }: { message: string }) => void;
+}
+
+interface useThemeStore {
+  theme: any;
+  changeMode: (mode: string) => void;
+}
+
 export const useAlertStore = create<useAlertStore>((set) => ({
   isOpen: false,
   status: "warning",
@@ -43,4 +59,35 @@ export const useAlertStore = create<useAlertStore>((set) => ({
 export const useUserStore = create<useUserStore>((set) => ({
   isOpen: false,
   toggle: () => set((state) => ({ isOpen: !state.isOpen })),
+}));
+
+export const useModalStore = create<useModalStore>((set) => ({
+  isOpen: false,
+  toggle: () => set((state) => ({ isOpen: !state.isOpen })),
+}));
+
+export const useSnackBarStore = create<useSnackBarStore>((set) => ({
+  isOpen: false,
+  message: "",
+  notify: ({ message }) =>
+    set((state) => ({ ...state, isOpen: !state.isOpen, message })),
+}));
+
+export const useThemeStore = create<useThemeStore>((set) => ({
+  theme: {
+    palette: {
+      mode: "light", // light dark
+      white: {
+        light: "#fff",
+        main: "#fff",
+        dark: "#ef6c00",
+        contrastText: "rgba(0, 0, 0, 0.87)",
+      },
+    },
+    typography: {
+      fontFamily: "Rubik",
+    },
+  },
+  changeMode: (mode) =>
+    set((state) => ({ ...state, theme: (state.theme.palette.mode = mode) })),
 }));

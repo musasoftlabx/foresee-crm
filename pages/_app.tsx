@@ -1,5 +1,5 @@
 import "../styles/globals.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 
@@ -11,6 +11,9 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { getCookie, setCookie } from "cookies-next";
 
 import Alert from "../components/Dialogs/Alert";
+
+// * Store imports
+import { useThemeStore } from "../store";
 
 import axios from "axios";
 
@@ -43,32 +46,21 @@ function MyApp({ Component, pageProps }: AppProps) {
         return res;
       },
       (err) => {
-        err.response.data.forceLogout && router.push("/login");
+        err.response.data.forceLogout &&
+          ((localStorage.lastRoute = router.asPath), router.push("/login"));
         return Promise.reject(err);
       }
     );
   }, []);
 
-  const theme = createTheme({
-    palette: {
-      mode: "dark",
-      white: {
-        light: "#fff",
-        main: "#fff",
-        dark: "#ef6c00",
-        contrastText: "rgba(0, 0, 0, 0.87)",
-      },
-    },
-    typography: {
-      fontFamily: "Rubik",
-    },
-  });
+  const theme = createTheme(useThemeStore((state) => state.theme));
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
-        <Alert />
-        <Component {...pageProps} />
+        <Alert theme={theme} />
+        <Component {...pageProps} theme={theme} />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ThemeProvider>

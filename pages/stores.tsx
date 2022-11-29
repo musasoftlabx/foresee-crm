@@ -13,17 +13,19 @@ import Paper from "@mui/material/Paper";
 
 import { RiDeleteBin5Fill as DeleteIcon } from "react-icons/ri";
 
-import { useUserStore } from "../store";
+import { useModalStore } from "../store";
 import { queryClient } from "./_app";
 
 import AddUser from "../components/Modals/AddUser";
 import AddStore from "../components/Modals/AddStore";
 
+import AppDrawer from "../components/AppDrawer";
+
 const Stores = () => {
-  const handleOpen = useUserStore((state) => state.toggle);
+  const handleOpen = useModalStore((state) => state.toggle);
 
   const { data: stores } = useQuery(
-    ["Stores"],
+    ["stores"],
     ({ queryKey }) => axios.get(queryKey[0]),
     { select: (data) => data.data }
   );
@@ -56,7 +58,7 @@ const Stores = () => {
     });
 
   return (
-    <>
+    <AppDrawer>
       <AddStore />
 
       <Button variant="outlined" onClick={handleOpen}>
@@ -101,7 +103,7 @@ const Stores = () => {
           </TableBody>
         </Table>
       </TableContainer>
-    </>
+    </AppDrawer>
   );
 };
 

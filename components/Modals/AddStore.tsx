@@ -29,7 +29,7 @@ export default function AddUser() {
 
   // ? Server state definitions
   const { mutate: addStore } = useMutation((body) =>
-    axios.post("Stores", body)
+    axios.post("stores", body)
   );
 
   return (
