@@ -76,7 +76,7 @@ export const useSnackBarStore = create<useSnackBarStore>((set) => ({
 export const useThemeStore = create<useThemeStore>((set) => ({
   theme: {
     palette: {
-      mode: "light", // light dark
+      mode: "dark", // light dark
       white: {
         light: "#fff",
         main: "#fff",

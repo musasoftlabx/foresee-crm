@@ -298,7 +298,7 @@ const Home: NextPage = () => {
                                     ? "warning"
                                     : ticket.stage === "In Progress"
                                     ? "info"
-                                    : ticket.stage === "Blocked"
+                                    : ticket.stage === "Rejected"
                                     ? "error"
                                     : "success"
                                 }
@@ -313,25 +313,27 @@ const Home: NextPage = () => {
                             <TableCell
                               sx={{ display: "flex", justifyContent: "center" }}
                             >
-                              <Tooltip title="View Quote">
-                                <IconButton
-                                  color="info"
-                                  sx={{
-                                    background: "#e1f5fe",
-                                    "&:hover": { background: "#b3e5fc" },
-                                  }}
-                                >
-                                  <BsFileEarmarkPdfFill
-                                    size={18}
-                                    onClick={() => {
-                                      setQuoteURL(
-                                        `${process.env.API}public/${ticket.quotation}`
-                                      );
-                                      setViewQuote(true);
+                              {ticket.quotation && (
+                                <Tooltip title="View Quote">
+                                  <IconButton
+                                    color="info"
+                                    sx={{
+                                      background: "#e1f5fe",
+                                      "&:hover": { background: "#b3e5fc" },
                                     }}
-                                  />
-                                </IconButton>
-                              </Tooltip>
+                                  >
+                                    <BsFileEarmarkPdfFill
+                                      size={18}
+                                      onClick={() => {
+                                        setQuoteURL(
+                                          `${process.env.API}public/${ticket.quotation}`
+                                        );
+                                        setViewQuote(true);
+                                      }}
+                                    />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
                             </TableCell>
                           </TableRow>
 

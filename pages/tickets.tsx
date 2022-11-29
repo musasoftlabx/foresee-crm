@@ -90,7 +90,7 @@ const Tickets = () => {
       items: [],
       gradient:
         theme === "dark"
-          ? "linear-gradient(-225deg, #f08379 0%, #b63737 100%)"
+          ? "linear-gradient(-225deg, #b63737 0%, #f08379 100%)"
           : "linear-gradient(to top, #e9beba 0%, #fff2f2 100%)",
       icon: <TiWarningOutline style={{ color: red[500] }} />,
       color: red[50],

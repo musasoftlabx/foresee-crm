@@ -141,8 +141,9 @@ const Quotation = () => {
                 toast.update("loading", {
                   type: toast.TYPE.SUCCESS,
                   isLoading: false,
-                  autoClose: 3000,
+                  autoClose: 1000,
                   render: "Quotation was created succesfully",
+                  onClose: () => router.back(),
                 });
               },
               onError: (error: any) => {
