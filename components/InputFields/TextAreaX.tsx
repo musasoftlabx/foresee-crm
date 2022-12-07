@@ -69,7 +69,8 @@ const CustomTextField = styled((props: AdditionalTextFieldProps) => (
         props.theme.palette.mode === "light"
           ? "rgba(255,248,248,0.9)"
           : "rgba(43,43,43,0.4)",
-      border: `2px dotted ${props.theme.palette.error.main}`,
+      outline: `2px dotted ${props.theme.palette.error.main}`,
+      border: "1px solid transparent",
     },
   },
   ".MuiFormLabel-root": {

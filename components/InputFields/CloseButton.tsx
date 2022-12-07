@@ -1,8 +1,16 @@
+// * Material UI imports
 import { styled } from "@mui/material/styles";
 import IconButton, { IconButtonProps } from "@mui/material/IconButton";
 
+// * React Icons imports
 import { RiCloseFill } from "react-icons/ri";
 
+// * Type definitions
+type TAdditionalIconButtonProps = IconButtonProps & {
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+};
+
+// * Create styled elements
 const CloseButton = styled(RiCloseFill)({
   color: "white",
   transform: "rotate(90deg)",
@@ -13,10 +21,7 @@ const CloseButton = styled(RiCloseFill)({
   },
 });
 
-type IconButtonClickProp = { onClick?: React.MouseEvent<HTMLElement> };
-type AdditionalIconButtonProps = IconButtonProps & IconButtonClickProp;
-
-export const CloseButtonX = (props: AdditionalIconButtonProps) => (
+export const CloseButtonX = (props: TAdditionalIconButtonProps) => (
   <IconButton {...props} edge="end">
     <CloseButton />
   </IconButton>

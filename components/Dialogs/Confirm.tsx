@@ -12,7 +12,7 @@ import { FaServer } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
 
 import styles from "../../styles/Alert.module.css";
-import { useAlertStore, useThemeStore } from "../../store";
+import { useConfirmStore, useThemeStore } from "../../store";
 
 interface Gradients {
   success: [string, string];
@@ -28,11 +28,17 @@ const gradients: Gradients = {
   error: ["#93291E", "#ED213A"],
 };
 
-export default function Alert({ theme }: { theme: any }) {
-  //const handleClose = useAlertStore((state) => state.alert);
-  const status = useAlertStore((state) => state.status);
-  const subject = useAlertStore((state) => state.subject);
-  const body = useAlertStore((state) => state.body);
+export default function Confirm({
+  theme,
+  handleConfirm,
+}: {
+  theme: any;
+  handleConfirm: () => void;
+}) {
+  const handleClose = useConfirmStore((state) => state.close);
+  const status = useConfirmStore((state) => state.status);
+  const subject = useConfirmStore((state) => state.subject);
+  const body = useConfirmStore((state) => state.body);
 
   const style = {
     backgroundColor: theme.palette.background.paper,
@@ -70,7 +76,7 @@ export default function Alert({ theme }: { theme: any }) {
 
   return (
     <AnimatePresence>
-      <Modal open={useAlertStore((state) => state.isOpen)}>
+      <Modal open={useConfirmStore((state) => state.isOpen)}>
         <motion.div
           initial={{ opacity: 0, y: "0%" }}
           animate={{ opacity: 1, y: "calc(50vh)" }}
@@ -122,11 +128,8 @@ export default function Alert({ theme }: { theme: any }) {
               </Typography>
             </Stack>
             <Stack direction="row" justifyContent="flex-end">
-              <Button
-                onClick={() => useAlertStore((state) => state.alert)}
-                autoFocus
-                color={status}
-              >
+              <Button onClick={handleClose}>CANCEL</Button>
+              <Button onClick={handleConfirm} autoFocus color={status}>
                 OK
               </Button>
             </Stack>

@@ -7,6 +7,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Montez&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Euphoria+Script&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cookie&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cookie&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,400;0,500;0,700;0,800;0,900;1,400&display=swap");
 
 html,
 body {
@@ -40,4 +43,50 @@ select:-webkit-autofill:focus {
   /* -webkit-text-fill-color: white; */
   -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Filepond styles overide */
+.filepond--credits {
+  display: none;
+}
+
+.filepond--drop-label {
+  transform: translate3d(0px, 20px, 0px) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.filepond--panel-center,
+.filepond--panel-top,
+.filepond--panel-bottom {
+  border: none !important;
+  background: transparent !important;
+}
+
+.filepond--list {
+  margin-top: 40px !important;
+}
+
+.filepond--root {
+  background: rgba(214, 214, 214, 0.95) !important;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  margin: 0 20px 30px 20px !important;
+  min-height: 130px !important;
+  max-height: 300px !important;
+  overflow: hidden !important;
+}
+
+.filepond--root:hover {
+  background: rgba(255, 255, 226, 0.9) !important;
+}
+
+.filepond--root label,
+.filepond--file-action-button {
+  cursor: pointer !important;
+}
+
+.lg-backdrop.in,
+.lg-outer {
+  z-index: 9999 !important;
 }

@@ -30,6 +30,12 @@ const Stores = () => {
     { select: (data) => data.data }
   );
 
+  const { data: domains } = useQuery(
+    ["domains"],
+    ({ queryKey }) => axios.get(queryKey[0]),
+    { select: (data) => data.data, refetchOnWindowFocus: false }
+  );
+
   const { mutate } = useMutation((_id) => axios.delete(`Stores/${_id}`));
 
   const handleDelete = (_id: string) =>
@@ -59,13 +65,19 @@ const Stores = () => {
 
   return (
     <AppDrawer>
-      <AddStore />
+      <AddStore domains={domains} />
 
       <Button variant="outlined" onClick={handleOpen}>
         ADD A NEW STORE
       </Button>
 
-      <TableContainer component={Paper}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          borderRadius: 3,
+          "&:last-child td, &:last-child th": { border: 0 },
+        }}
+      >
         <Table sx={{ mt: 3, minWidth: 650 }} size="small">
           <TableHead>
             <TableRow>
@@ -77,29 +89,40 @@ const Stores = () => {
           </TableHead>
           <TableBody>
             {stores &&
-              stores.rows.map((store, i: number) => (
-                <TableRow key={i}>
-                  <TableCell>{store.code}</TableCell>
-                  <TableCell>{store.name}</TableCell>
-                  <TableCell>{store.country}</TableCell>
-                  <TableCell>{store.client}</TableCell>
-                  <TableCell>
-                    {
-                      <IconButton
-                        color="error"
-                        sx={{
-                          background: "#ffeeee",
-                          "&:hover": {
-                            background: "#fbdbdb",
-                          },
-                        }}
-                      >
-                        <DeleteIcon onClick={() => handleDelete(store._id)} />
-                      </IconButton>
-                    }
-                  </TableCell>
-                </TableRow>
-              ))}
+              stores.rows.map(
+                (
+                  store: {
+                    _id: string;
+                    code: string;
+                    name: string;
+                    country: string;
+                    client: string;
+                  },
+                  key: number
+                ) => (
+                  <TableRow key={key}>
+                    <TableCell>{store.code}</TableCell>
+                    <TableCell>{store.name}</TableCell>
+                    <TableCell>{store.country}</TableCell>
+                    <TableCell>{store.client}</TableCell>
+                    <TableCell>
+                      {
+                        <IconButton
+                          color="error"
+                          sx={{
+                            background: "#ffeeee",
+                            "&:hover": {
+                              background: "#fbdbdb",
+                            },
+                          }}
+                        >
+                          <DeleteIcon onClick={() => handleDelete(store._id)} />
+                        </IconButton>
+                      }
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
           </TableBody>
         </Table>
       </TableContainer>

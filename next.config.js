@@ -10,8 +10,16 @@ const nextConfig = {
     JWT_EXPIRY: "100h",
     API:
       process.env.NODE_ENV === "development"
-        ? "http://localhost:3333/"
-        : "http://localhost:3333/",
+        ? "https://localhost:3333/"
+        : "https://localhost:3333/",
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "localhost",
+      },
+    ],
   },
 };
 

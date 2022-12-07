@@ -13,17 +13,17 @@ import Paper from "@mui/material/Paper";
 
 import { RiDeleteBin5Fill as DeleteIcon } from "react-icons/ri";
 
-import { useUserStore } from "../store";
+import { useModalStore } from "../store";
 import { queryClient } from "./_app";
 
 import AppDrawer from "../components/AppDrawer";
 import AddUser from "../components/Modals/AddUser";
 
 const Users = () => {
-  const handleOpen = useUserStore((state) => state.toggle);
+  const handleOpen = useModalStore((state) => state.toggle);
 
-  const { data } = useQuery(
-    ["GetDomains"],
+  const { data: domains } = useQuery(
+    ["domains"],
     ({ queryKey }) => axios.get(queryKey[0]),
     { refetchOnWindowFocus: false }
   );
@@ -63,13 +63,19 @@ const Users = () => {
 
   return (
     <AppDrawer>
-      <AddUser domains={data} />
+      <AddUser domains={domains} />
 
       <Button variant="outlined" onClick={handleOpen}>
         ADD A NEW USER
       </Button>
 
-      <TableContainer component={Paper}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          borderRadius: 3,
+          "&:last-child td, &:last-child th": { border: 0 },
+        }}
+      >
         <Table sx={{ mt: 3, minWidth: 650 }} size="small">
           <TableHead>
             <TableRow>
@@ -114,14 +120,3 @@ const Users = () => {
 };
 
 export default Users;
-
-/* export async function getStaticProps() {
-  const x = await fetch("http://localhost:3333/GetDomains");
-  const y = await x.json();
-
-  return {
-    props: {
-      domains: y,
-    },
-  };
-} */

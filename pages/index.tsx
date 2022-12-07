@@ -6,8 +6,9 @@ import type { NextPage } from "next";
 import Head from "next/head";
 
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import VanillaTilt from "vanilla-tilt";
+import { ToastContainer, toast } from "react-toastify";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -27,11 +28,11 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
 import AppDrawer from "../components/AppDrawer";
-import RaiseTicket from "../components/RaiseTicket";
+import RaiseTicket from "../components/Modals/RaiseTicket";
 import ViewQuote from "../components/Modals/ViewQuote";
 import { queryClient } from "./_app";
 
-import { useAlertStore, useModalStore } from "../store";
+import { useAlertStore, useConfirmStore, useModalStore } from "../store";
 
 // * React Icons imports
 import { FcSearch } from "react-icons/fc";
@@ -39,7 +40,10 @@ import { BsFileEarmarkPdfFill } from "react-icons/bs";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 
 // * Project Components imports
-import { TextFieldX } from "../components/InputFields/TextField";
+import { TextFieldX } from "../components/InputFields/TextFieldX";
+import Image from "next/image";
+import { Stack } from "@mui/material";
+import Confirm from "../components/Dialogs/Confirm";
 
 interface Store {
   name: string;
@@ -48,15 +52,18 @@ interface Store {
   code: string;
 }
 
-const Home: NextPage = () => {
+const Home = ({ theme }: { theme: any }) => {
   const [search, setSearch] = useState("");
   const [selectedStore, setSelectedStore] = useState("");
+  const [_, setSelectedTicket] = useState("");
   const [tickets, setTickets] = useState<any>(null);
   const [quoteURL, setQuoteURL] = useState("");
   const [viewQuote, setViewQuote] = useState(false);
 
   // ? Zustand definitions
   const openRaiseTicketForm = useModalStore((state) => state.toggle);
+  const handleClose = useConfirmStore((state) => state.close);
+  const showConfirm = useConfirmStore((state) => state.alert);
 
   // ? Get categories
   const { data: categories } = useQuery(
@@ -69,7 +76,11 @@ const Home: NextPage = () => {
   const { isFetched: isTicketsFetched } = useQuery(
     ["tickets"],
     ({ queryKey }) => axios.get(queryKey[0]),
-    { select: (data) => data.data, onSuccess: (data) => setTickets(data) }
+    {
+      select: (data) => data.data,
+      onSuccess: (data) => setTickets(data),
+      refetchOnWindowFocus: false,
+    }
   );
 
   // ? Get stores
@@ -77,6 +88,10 @@ const Home: NextPage = () => {
     ["stores"],
     ({ queryKey }) => axios.get(queryKey[0]),
     { select: (data) => data.data.rows }
+  );
+
+  const { mutate: approve } = useMutation((body) =>
+    axios.put("tickets/approve", body)
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -106,16 +121,65 @@ const Home: NextPage = () => {
           <link rel="icon" href="/favicon.ico" />
         </Head>
 
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={true}
+          closeButton={false}
+          theme={theme.palette.mode}
+        />
+
         <RaiseTicket
           categories={categories}
           store={selectedStore}
           setTickets={setTickets}
         />
 
+        <Confirm
+          handleConfirm={() => {
+            toast.info("Sending Mail to client", {
+              toastId: "loading",
+              isLoading: true,
+            });
+
+            handleClose();
+            setViewQuote(false);
+
+            approve(
+              //@ts-ignore
+              { _ },
+              {
+                onSuccess: () =>
+                  toast.update("loading", {
+                    type: toast.TYPE.SUCCESS,
+                    isLoading: false,
+                    autoClose: 1000,
+                    render: "Approved!",
+                  }),
+                onError: (error: any) =>
+                  toast.update("loading", {
+                    type: toast.TYPE.ERROR,
+                    isLoading: false,
+                    autoClose: 1000,
+                    render: "Error while approving! Please try again.",
+                  }),
+              }
+            );
+          }}
+          theme={theme}
+        />
+
         <ViewQuote
           viewQuote={viewQuote}
           setViewQuote={setViewQuote}
           url={quoteURL}
+          beforeClose={() =>
+            showConfirm({
+              status: "info",
+              subject: "Confirm send",
+              body: "Proceed to approve this quote?",
+            })
+          }
         />
 
         <Grid container rowSpacing={2}>
@@ -235,7 +299,7 @@ const Home: NextPage = () => {
                   </TableHead>
                   <TableBody>
                     {tickets &&
-                      tickets.rows.map((ticket, i: number) => (
+                      tickets.rows.map((ticket: any, i: number) => (
                         <React.Fragment key={i}>
                           <TableRow>
                             <TableCell>
@@ -313,24 +377,23 @@ const Home: NextPage = () => {
                             <TableCell
                               sx={{ display: "flex", justifyContent: "center" }}
                             >
-                              {ticket.quotation && (
+                              {ticket.quotation?.mailed && (
                                 <Tooltip title="View Quote">
                                   <IconButton
                                     color="info"
+                                    onClick={() => {
+                                      setQuoteURL(
+                                        `${process.env.API}public/${ticket.quotation.url}`
+                                      );
+                                      setViewQuote(true);
+                                      setSelectedTicket(ticket._id);
+                                    }}
                                     sx={{
                                       background: "#e1f5fe",
                                       "&:hover": { background: "#b3e5fc" },
                                     }}
                                   >
-                                    <BsFileEarmarkPdfFill
-                                      size={18}
-                                      onClick={() => {
-                                        setQuoteURL(
-                                          `${process.env.API}public/${ticket.quotation}`
-                                        );
-                                        setViewQuote(true);
-                                      }}
-                                    />
+                                    <BsFileEarmarkPdfFill size={18} />
                                   </IconButton>
                                 </Tooltip>
                               )}
@@ -358,6 +421,28 @@ const Home: NextPage = () => {
                                     {ticket.details._}
                                   </Typography>
                                 </Box>
+
+                                <Stack direction="row" spacing={3}>
+                                  {ticket.photos?.map(
+                                    (photo: string, key: number) => (
+                                      <a key={key} href={photo} target="_blank">
+                                        <Image
+                                          src={photo}
+                                          blurDataURL={photo}
+                                          width={80}
+                                          height={80}
+                                          objectFit="contain"
+                                          alt="Photo"
+                                          placeholder="blur"
+                                          style={{
+                                            borderRadius: 20,
+                                            cursor: "pointer",
+                                          }}
+                                        />
+                                      </a>
+                                    )
+                                  )}
+                                </Stack>
                               </Collapse>
                             </TableCell>
                           </TableRow>

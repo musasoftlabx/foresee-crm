@@ -11,10 +11,16 @@ import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 interface ViewQuote {
   viewQuote: boolean;
   setViewQuote: (arg: boolean) => void;
+  beforeClose?: () => void;
   url: string;
 }
 
-export default function ViewQuote({ url, viewQuote, setViewQuote }: ViewQuote) {
+export default function ViewQuote({
+  url,
+  viewQuote,
+  setViewQuote,
+  beforeClose,
+}: ViewQuote) {
   // ? Client state definitions
   const handleClose = useModalStore((state) => state.toggle);
   const theme = useThemeStore((state) => state.theme);
@@ -22,7 +28,10 @@ export default function ViewQuote({ url, viewQuote, setViewQuote }: ViewQuote) {
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
   return (
-    <Modal open={viewQuote} onClose={() => setViewQuote(false)}>
+    <Modal
+      open={viewQuote}
+      onClose={() => (beforeClose ? beforeClose() : setViewQuote(false))}
+    >
       <Box
         sx={{
           backgroundColor: "#fff",

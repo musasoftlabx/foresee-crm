@@ -6,7 +6,7 @@ import { devtools, persist } from "zustand/middleware";
 
 interface useAlertStore {
   isOpen: boolean;
-  status?: string;
+  status: "success" | "info" | "warning" | "error";
   subject: string;
   body: string;
   alert: ({
@@ -14,10 +14,17 @@ interface useAlertStore {
     subject,
     body,
   }: {
-    status?: string;
+    status: "success" | "info" | "warning" | "error";
     subject: string;
     body: string;
   }) => void;
+}
+
+interface useConfirmStore extends useAlertStore {
+  cancel?: string;
+  ok?: string;
+  confirm: () => void;
+  close: () => void;
 }
 
 interface useUserStore {
@@ -56,6 +63,23 @@ export const useAlertStore = create<useAlertStore>((set) => ({
     })),
 }));
 
+export const useConfirmStore = create<useConfirmStore>((set) => ({
+  isOpen: false,
+  status: "warning",
+  subject: "",
+  body: "",
+  alert: ({ status, subject, body }) =>
+    set((state) => ({
+      ...state,
+      isOpen: !state.isOpen,
+      status: !status ? state.status : status,
+      subject,
+      body,
+    })),
+  confirm: () => set((state) => ({ ...state, isOpen: false })),
+  close: () => set((state) => ({ ...state, isOpen: false })),
+}));
+
 export const useUserStore = create<useUserStore>((set) => ({
   isOpen: false,
   toggle: () => set((state) => ({ isOpen: !state.isOpen })),
@@ -76,7 +100,7 @@ export const useSnackBarStore = create<useSnackBarStore>((set) => ({
 export const useThemeStore = create<useThemeStore>((set) => ({
   theme: {
     palette: {
-      mode: "dark", // light dark
+      mode: "light", // light dark
       white: {
         light: "#fff",
         main: "#fff",
@@ -85,7 +109,7 @@ export const useThemeStore = create<useThemeStore>((set) => ({
       },
     },
     typography: {
-      fontFamily: "Rubik",
+      fontFamily: "Rubik", //Poppins
     },
   },
   changeMode: (mode) =>

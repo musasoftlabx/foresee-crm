@@ -31,33 +31,39 @@ import {
 } from "react-icons/ri";
 
 // * Project Components imports
-import { useAlertStore, useThemeStore } from "../store";
+import { useAlertStore, useConfirmStore, useThemeStore } from "../store";
 
 // * Project Components imports
 import AppDrawer from "../components/AppDrawer";
-import { TextFieldX } from "../components/InputFields/TextField";
+import { TextFieldX } from "../components/InputFields/TextFieldX";
 import { TextAreaX } from "../components/InputFields/TextAreaX";
-import { LoadingButtonX } from "../components/InputFields/LoadingButton";
+import { LoadingButtonX } from "../components/InputFields/LoadingButtonX";
+import ViewQuote from "../components/Modals/ViewQuote";
+import Confirm from "../components/Dialogs/Confirm";
 
-const Quotation = () => {
+const Quotation = ({ theme }: { theme: any }) => {
   const router = useRouter();
   const {
     query: { _ },
   } = router;
 
-  /* useEffect(() => {
-    !_ && router.push("/tickets");
-  }, []); */
+  const [quoteURL, setQuoteURL] = useState("");
+  const [viewQuote, setViewQuote] = useState(false);
 
   const [date, setDate] = useState<Dayjs | null>(dayjs());
 
   // ? Client state definitions
   const showAlert = useAlertStore((state) => state.alert);
-  const theme = useThemeStore((state) => state.theme.palette.mode);
+  const showConfirm = useConfirmStore((state) => state.alert);
+  const handleClose = useConfirmStore((state) => state.close);
 
   // ? Server state definitions
   const { mutate, isSuccess, isError, isLoading } = useMutation((body) =>
     axios.post("quotation", body)
+  );
+
+  const { mutate: sendMail } = useMutation((body) =>
+    axios.put("quotation", body)
   );
 
   isLoading &&
@@ -68,12 +74,60 @@ const Quotation = () => {
 
   return (
     <AppDrawer>
+      <Confirm
+        handleConfirm={() => {
+          toast.info("Sending Mail to client", {
+            toastId: "loading",
+            isLoading: true,
+          });
+
+          handleClose();
+
+          sendMail(
+            //@ts-ignore
+            { _ },
+            {
+              onSuccess: () =>
+                toast.update("loading", {
+                  type: toast.TYPE.SUCCESS,
+                  isLoading: false,
+                  autoClose: 1000,
+                  render: "Mail sent succesfully",
+                  onClose: () => router.back(),
+                }),
+              onError: (error: any) => {
+                showAlert({
+                  status: error.response.data.status,
+                  subject: error.response.data.subject,
+                  body: error.response.data.body,
+                });
+                toast.dismiss("loading");
+              },
+            }
+          );
+        }}
+        theme={theme}
+      />
+
       <ToastContainer
         position="bottom-right"
         autoClose={3000}
         hideProgressBar={true}
         closeButton={false}
-        theme={theme}
+        theme={theme.palette.mode}
+      />
+
+      <ViewQuote
+        viewQuote={viewQuote}
+        setViewQuote={setViewQuote}
+        url={quoteURL}
+        beforeClose={() =>
+          showConfirm({
+            status: "info",
+            subject: "Confirm send",
+            body: "Proceed to send the quote to the client now?",
+          })
+        }
       />
 
       <Formik
@@ -118,7 +172,7 @@ const Quotation = () => {
             //@ts-ignore
             { ...values, _ },
             {
-              onSuccess: (data) => {
+              onSuccess: ({ data: { url } }) => {
                 resetForm({
                   values: {
                     offerDate: date,
@@ -143,7 +197,10 @@ const Quotation = () => {
                   isLoading: false,
                   autoClose: 1000,
                   render: "Quotation was created succesfully",
-                  onClose: () => router.back(),
+                  onClose: () => {
+                    setQuoteURL(url);
+                    setViewQuote(true);
+                  },
                 });
               },
               onError: (error: any) => {
@@ -215,10 +272,12 @@ const Quotation = () => {
                 label="Warranty"
                 columnspan={{ xs: 12, sm: 6, md: 3, lg: 2, xl: 1.5 }}
                 error={touched.warranty && Boolean(errors.warranty)}
-                helperText={touched.warranty && errors.warranty}
+                helperText={
+                  (touched.warranty && errors.warranty) || "e.g  2 years"
+                }
                 prefixcon={<FaTheaterMasks size={24} />}
-                mask="d$______"
-                replacement={{ d: /\d/, $: /^[ ]+$/, _: /^[ A-Za-z]+$/ }}
+                mask="x$______"
+                replacement={{ x: /\d/, $: /^[ ]+$/, _: /^[ A-Za-z]+$/ }}
                 {...getFieldProps("warranty")}
               />
 
@@ -226,10 +285,12 @@ const Quotation = () => {
                 label="Timeframe"
                 columnspan={{ xs: 12, sm: 6, md: 3.3, lg: 2.2, xl: 1.6 }}
                 error={touched.timeframe && Boolean(errors.timeframe)}
-                helperText={touched.timeframe && errors.timeframe}
+                helperText={
+                  (touched.timeframe && errors.timeframe) || "e.g  2 days"
+                }
                 prefixcon={<GiAlarmClock size={24} />}
-                mask="d$______"
-                replacement={{ d: /\d/, $: /^[ ]+$/, _: /^[ A-Za-z]+$/ }}
+                mask="x$______"
+                replacement={{ x: /\d/, $: /^[ ]+$/, _: /^[ A-Za-z]+$/ }}
                 {...getFieldProps("timeframe")}
               />
 
@@ -309,8 +370,8 @@ const Quotation = () => {
                             label="Qty *"
                             columnspan={{ xs: 12, md: 1.5, lg: 1 }}
                             {...getFieldProps(`workDetails.${index}.quantity`)}
-                            mask="yy"
-                            replacement={{ y: /\d/ }}
+                            mask="xx"
+                            replacement={{ x: /\d/ }}
                             error={
                               touched.workDetails?.[index]?.quantity &&
                               //@ts-ignore
@@ -327,8 +388,8 @@ const Quotation = () => {
                             label="Price *"
                             prefixcon="KES"
                             {...getFieldProps(`workDetails.${index}.price`)}
-                            mask="yyyyy"
-                            replacement={{ y: /\d/ }}
+                            mask="xxxxx"
+                            replacement={{ x: /\d/ }}
                             columnspan={{ xs: 12, md: 2, lg: 1.5, xl: 2 }}
                             error={
                               touched.workDetails?.[index]?.price &&

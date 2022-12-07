@@ -26,9 +26,9 @@ import axios from "axios";
 
 // * Project Components imports
 import { useAlertStore } from "../store";
-import { LoadingButtonX } from "../components/InputFields/LoadingButton";
+import { LoadingButtonX } from "../components/InputFields/LoadingButtonX";
 import SwitchX from "../components/InputFields/SwitchX";
-import { TextFieldX } from "../components/InputFields/TextField";
+import { TextFieldX } from "../components/InputFields/TextFieldX";
 
 // * Images imports
 import LoginVector from "../public/images/login_vector.png";
@@ -143,7 +143,8 @@ const Login = ({ theme }: any) => {
                 { ...values, password: encoded },
                 {
                   onSuccess: () =>
-                    !localStorage.lastRoute
+                    !localStorage.lastRoute ||
+                    localStorage.lastRoute === "/login"
                       ? router.push("/")
                       : router.push(localStorage.lastRoute),
                   onError: (error: any) => {
