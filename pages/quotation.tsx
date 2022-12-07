@@ -82,6 +82,7 @@ const Quotation = ({ theme }: { theme: any }) => {
           });
 
           handleClose();
+          setViewQuote(false);
 
           sendMail(
             //@ts-ignore

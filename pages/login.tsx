@@ -9,6 +9,7 @@ import Image from "next/image";
 import AppBar from "@mui/material/AppBar";
 import IconButton from "@mui/material/IconButton";
 import Grid from "@mui/material/Unstable_Grid2";
+import Paper from "@mui/material/Paper";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
@@ -29,6 +30,8 @@ import { useAlertStore } from "../store";
 import { LoadingButtonX } from "../components/InputFields/LoadingButtonX";
 import SwitchX from "../components/InputFields/SwitchX";
 import { TextFieldX } from "../components/InputFields/TextFieldX";
+
+import { FcNightPortrait, FcPrivacy } from "react-icons/fc";
 
 // * Images imports
 import LoginVector from "../public/images/login_vector.png";
@@ -61,8 +64,8 @@ const Login = ({ theme }: any) => {
         </Toolbar>
       </AppBar>
 
-      <Grid container minHeight={"100vh"}>
-        <Grid
+      <Grid container justifyContent="center" minHeight="100vh">
+        {/* <Grid
           xs={0}
           md={6}
           lg={7}
@@ -96,129 +99,131 @@ const Login = ({ theme }: any) => {
             alt="Login Vector Illustration"
             placeholder="blur"
           />
-        </Grid>
+        </Grid> */}
         <Grid
-          md={6}
-          lg={5}
+          //md={6}
+          xs={12}
+          md={3}
           display="flex"
           flexDirection="column"
           justifyContent="center"
+          alignItems="center"
         >
-          <motion.div
-            layout
-            initial={{ x: "-50vw" }}
-            animate={{ x: "0vw" }}
-            transition={{
-              layout: { duration: 1, type: "spring" },
+          <Paper
+            sx={{
+              boxShadow: "rgba(0, 0, 0, 0.4) 0px 30px 90px;",
+              borderRadius: 5,
+              p: 3,
+              textAlign: "center",
             }}
           >
-            <Typography variant="h4">Let&apos;s get started</Typography>
-          </motion.div>
+            <motion.div
+              layout
+              //initial={{ x: "-50vw" }}
+              //animate={{ x: "0vw" }}
+              transition={{
+                layout: { duration: 1, type: "spring" },
+              }}
+            >
+              <Image
+                src={LoginVector}
+                height="500px"
+                objectFit="contain"
+                alt="Login Vector Illustration"
+                placeholder="blur"
+              />
 
-          <Typography
-            variant="subtitle1"
-            gutterBottom
-            sx={{ fontFamily: "Rubik", mb: 1 }}
-          >
-            Don&apos;t have an account? Check here
-          </Typography>
+              <Typography variant="h4" gutterBottom>
+                Let&apos;s get started
+              </Typography>
+            </motion.div>
 
-          <Formik
-            initialValues={{
-              username: "",
-              password: "",
-            }}
-            validationSchema={Yup.object({
-              username: Yup.string()
-                .min(3, "Must be 3 characters or more")
-                .required("Required"),
-              password: Yup.string()
-                .max(20, "Must be 20 characters or less")
-                .required("Required"),
-            })}
-            onSubmit={(values, { setSubmitting }) => {
-              const encoded = new Buffer(values.password).toString("base64");
-              login(
-                //@ts-ignore
-                { ...values, password: encoded },
-                {
-                  onSuccess: () =>
-                    !localStorage.lastRoute ||
-                    localStorage.lastRoute === "/login"
-                      ? router.push("/")
-                      : router.push(localStorage.lastRoute),
-                  onError: (error: any) => {
-                    setSubmitting(false);
-                    showAlert({
-                      status: error.response.data.status,
-                      subject: error.response.data.subject,
-                      body: error.response.data.body,
-                    });
-                  },
-                }
-              );
-            }}
-          >
-            {({ errors, touched, isSubmitting, getFieldProps }) => (
-              <Form>
-                <Grid
-                  container
-                  rowSpacing={2}
-                  columns={{ xs: 12, md: 9, lg: 7 }}
-                >
-                  <Grid display="flex" flexDirection="column">
-                    <TextFieldX
-                      label="Username"
-                      placeholder="Enter username"
-                      prefixcon={<MdAccountCircle size={24} />}
-                      error={touched.username && Boolean(errors.username)}
-                      helperText={touched.username && errors.username}
-                      {...getFieldProps("username")}
-                    />
+            <Typography variant="subtitle2" gutterBottom sx={{ mb: 1 }}>
+              Don&apos;t have an account? Check here
+            </Typography>
 
-                    <TextFieldX
-                      type={showPassword ? "password" : "text"}
-                      label="Password"
-                      placeholder="Enter password"
-                      error={touched.password && Boolean(errors.password)}
-                      helperText={touched.password && errors.password}
-                      {...getFieldProps("password")}
-                      prefixcon={<AiFillLock size={24} />}
-                      suffixcon={
-                        <IconButton
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          onMouseDown={(event) => event.preventDefault()}
-                          edge="end"
-                          sx={{ color: errors.password ? "#d3302f" : "" }}
-                        >
-                          {showPassword ? (
-                            <MdVisibility />
-                          ) : (
-                            <MdVisibilityOff />
-                          )}
-                        </IconButton>
-                      }
-                    />
+            <Formik
+              initialValues={{ username: "", password: "" }}
+              validationSchema={Yup.object({
+                username: Yup.string()
+                  .min(3, "Must be 3 characters or more")
+                  .required("Required"),
+                password: Yup.string()
+                  .max(20, "Must be 20 characters or less")
+                  .required("Required"),
+              })}
+              onSubmit={(values, { setSubmitting }) => {
+                const encoded = new Buffer(values.password).toString("base64");
+                login(
+                  //@ts-ignore
+                  { ...values, password: encoded },
+                  {
+                    onSuccess: () =>
+                      !localStorage.lastRoute ||
+                      localStorage.lastRoute === "/login"
+                        ? router.push("/")
+                        : router.push(localStorage.lastRoute),
+                    onError: (error: any) => {
+                      setSubmitting(false);
+                      showAlert({
+                        status: error.response.data.status,
+                        subject: error.response.data.subject,
+                        body: error.response.data.body,
+                      });
+                    },
+                  }
+                );
+              }}
+            >
+              {({ errors, touched, isSubmitting, getFieldProps }) => (
+                <Form>
+                  <TextFieldX
+                    label="Username"
+                    placeholder="Enter username"
+                    prefixcon={<FcNightPortrait size={24} />}
+                    error={touched.username && Boolean(errors.username)}
+                    helperText={touched.username && errors.username}
+                    {...getFieldProps("username")}
+                  />
 
-                    <LoadingButtonX
-                      type="submit"
-                      placement="center"
-                      size="large"
-                      disabled={
-                        JSON.stringify(touched) === "{}" ||
-                        JSON.stringify(errors) !== "{}" ||
-                        isSubmitting
-                      }
-                      loading={isSubmitting}
-                      loadingtext="LOGGING IN..."
-                    >
-                      LOGIN
-                    </LoadingButtonX>
-                  </Grid>
-                </Grid>
-              </Form>
-            )}
-          </Formik>
+                  <TextFieldX
+                    type={showPassword ? "password" : "text"}
+                    label="Password"
+                    placeholder="Enter password"
+                    error={touched.password && Boolean(errors.password)}
+                    helperText={touched.password && errors.password}
+                    {...getFieldProps("password")}
+                    prefixcon={<FcPrivacy size={24} />}
+                    suffixcon={
+                      <IconButton
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        onMouseDown={(event) => event.preventDefault()}
+                        edge="end"
+                        sx={{ color: errors.password ? "#d3302f" : "" }}
+                      >
+                        {showPassword ? <MdVisibility /> : <MdVisibilityOff />}
+                      </IconButton>
+                    }
+                  />
+
+                  <LoadingButtonX
+                    type="submit"
+                    placement="center"
+                    size="large"
+                    disabled={
+                      JSON.stringify(touched) === "{}" ||
+                      JSON.stringify(errors) !== "{}" ||
+                      isSubmitting
+                    }
+                    loading={isSubmitting}
+                    loadingtext="DANG..."
+                  >
+                    LOGIN
+                  </LoadingButtonX>
+                </Form>
+              )}
+            </Formik>
+          </Paper>
         </Grid>
       </Grid>
     </>

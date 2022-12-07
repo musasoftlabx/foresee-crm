@@ -109,7 +109,7 @@ export const useThemeStore = create<useThemeStore>((set) => ({
       },
     },
     typography: {
-      fontFamily: "Rubik", //Poppins
+      fontFamily: "Poppins", //Poppins Rubik
     },
   },
   changeMode: (mode) =>
